@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Running Academy Calculators</title>
+    <title>Kalkulačka tempa Running Academy</title>
     <style>
         body {
             font-family: "League Gothic", sans-serif;
@@ -132,7 +132,7 @@
         }
 
         .result-grid {
-            display: grid;
+            /* display: grid; */
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
@@ -147,37 +147,55 @@
         .unit-toggle {
             margin-bottom: 15px;
         }
+
+        .back-button {
+            display: inline-block;
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+
+        .back-button:hover {
+            background-color: #d4b46c;
+        }
+
+        .section-divider {
+            border-top: 2px solid #414141;
+            margin: 30px 0;
+        }
+
+        .calculator-section {
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Running Academy Calculators</h1>
 
-    <div class="tab">
-        <button class="tablinks active" onclick="openCalculator(event, 'vdot')">VDOT Calculator</button>
-        <button class="tablinks" onclick="openCalculator(event, 'pace')">Pace Calculator</button>
-    </div>
+    <h1>Kalkulačka tempa Running Academy</h1>
+    <a href="https://www.runningacademy.cz/" class="back-button">« zpět</a>
 
-    <!-- VDOT Calculator Tab -->
-    <div id="vdot" class="tabcontent" style="display: block;">
-        <h2>VDOT Running Calculator</h2>
-
-
+    <div class="calculator-section">
         <div class="input-section">
             <div>
-                <label for="vdot-distance-type">Race Distance:</label>
-                <select id="vdot-distance-type">
+                <label for="distance-type">Závodní vzdálenost:</label>
+                <select id="distance-type">
                     <option value="5k">5K</option>
                     <option value="10k">10K</option>
-                    <option value="half-marathon">Half Marathon</option>
-                    <option value="marathon">Marathon</option>
-                    <option value="custom">Custom</option>
+                    <option value="half-marathon">Půlmaraton</option>
+                    <option value="marathon">Maraton</option>
+                    <option value="custom">Vlastní</option>
                 </select>
 
-                <div id="vdot-custom-distance" class="hidden">
-                    <label for="vdot-custom-distance-value">Custom Distance:</label>
-                    <input type="number" id="vdot-custom-distance-value" min="1" step="0.01">
-                    <select id="vdot-custom-distance-unit">
+                <div id="custom-distance" class="hidden">
+                    <label for="custom-distance-value">Vlastní vzdálenost:</label>
+                    <input type="number" id="custom-distance-value" min="0.1" step="0.01">
+                    <select id="custom-distance-unit">
                         <option value="km">km</option>
                         <option value="m">m</option>
                     </select>
@@ -185,43 +203,44 @@
             </div>
 
             <div>
-                <label>Race Time:</label>
-                <input type="number" id="vdot-hours" min="0" max="99" placeholder="HH" style="width: 60px;">
-                <input type="number" id="vdot-minutes" min="0" max="59" placeholder="MM" style="width: 60px;">
-                <input type="number" id="vdot-seconds" min="0" max="59" placeholder="SS" style="width: 60px;">
+                <label>Závodní čas:</label>
+                <input type="number" id="hours" min="0" max="99" placeholder="HH" style="width: 60px;">
+                <input type="number" id="minutes" min="0" max="59" placeholder="MM" style="width: 60px;">
+                <input type="number" id="seconds" min="0" max="59" placeholder="SS" style="width: 60px;">
             </div>
 
             <div>
-                <label for="vdot-temperature">Temperature:</label>
-                <input type="number" id="vdot-temperature" min="-50" max="50" step="0.1">
-                <select id="vdot-temperature-unit">
+                <label for="temperature">Teplota:</label>
+                <input type="number" id="temperature" min="-50" max="50" step="0.1">
+                <select id="temperature-unit">
                     <option value="C">°C</option>
                     <option value="F">°F</option>
                 </select>
-                <small>(optional)</small>
+                <small>(volitelné)</small>
             </div>
 
             <div>
-                <label for="vdot-altitude">Altitude:</label>
-                <input type="number" id="vdot-altitude" min="0" step="1">
-                <label for="vdot-altitude-unit" style="width: auto;">meters</label>
-                <small>(optional)</small>
+                <label for="altitude">Nadmořská výška:</label>
+                <input type="number" id="altitude" min="0" step="1">
+                <label for="altitude-unit" style="width: auto;">metrů</label>
+                <small>(volitelné)</small>
             </div>
 
-            <button id="vdot-calculate">Calculate</button>
+            <button id="calculate-all">Vypočítat</button>
         </div>
 
+        <!-- VDOT Results Section -->
         <div id="vdot-results" class="result-section hidden">
-            <h3>Your VDOT Score: <span id="vdot-score"></span></h3>
+            <h3>Vaše VDOT skóre: <span id="vdot-score"></span></h3>
 
             <div class="result-grid">
                 <div class="result-card">
-                    <h4>Training Paces</h4>
+                    <h4>Tréninková tempa</h4>
                     <table id="vdot-training-paces">
                         <thead>
                             <tr>
-                                <th>Type</th>
-                                <th>Pace/km</th>
+                                <th>Typ</th>
+                                <th>Tempo/km</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -229,14 +248,14 @@
                 </div>
 
                 <div class="result-card">
-                    <h4>Track Intervals</h4>
+                    <h4>Intervaly na dráze</h4>
                     <table id="vdot-track-intervals">
                         <thead>
                             <tr>
-                                <th>Distance</th>
-                                <th>Threshold</th>
+                                <th>Vzdálenost</th>
+                                <th>Tempo</th>
                                 <th>Interval</th>
-                                <th>Repetition</th>
+                                <th>Opakování</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -244,13 +263,13 @@
                 </div>
 
                 <div class="result-card">
-                    <h4>Equivalent Race Performances</h4>
+                    <h4>Ekvivalentní závodní výkony</h4>
                     <table id="vdot-equivalent-performances">
                         <thead>
                             <tr>
-                                <th>Distance</th>
-                                <th>Time</th>
-                                <th>Pace/km</th>
+                                <th>Vzdálenost</th>
+                                <th>Čas</th>
+                                <th>Tempo/km</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -258,40 +277,18 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Pace Calculator Tab -->
-    <div id="pace" class="tabcontent">
-        <h2>Running Pace Calculator</h2>
-        <p>Calculate training paces based on race performance</p>
-
-        <div class="input-section">
-            <div>
-                <label for="pace-distance">Race Distance:</label>
-                <input type="number" id="pace-distance" min="0.1" step="0.1">
-                <span>kilometers</span>
-            </div>
-
-            <div>
-                <label>Race Time:</label>
-                <input type="number" id="pace-hours" min="0" max="99" placeholder="HH" style="width: 60px;">
-                <input type="number" id="pace-minutes" min="0" max="59" placeholder="MM" style="width: 60px;">
-                <input type="number" id="pace-seconds" min="0" max="59" placeholder="SS" style="width: 60px;">
-            </div>
-
-            <button id="pace-calculate">Calculate</button>
-        </div>
-
+        <!-- Pace Results Section -->
         <div id="pace-results" class="result-section hidden">
-            <h3>Your Training Paces</h3>
+            <h3>Vaše tréninková tempa</h3>
 
             <div class="result-card">
                 <table id="pace-training-paces">
                     <thead>
                         <tr>
-                            <th>Type</th>
-                            <th>Pace</th>
-                            <th>Description</th>
+                            <th>Typ</th>
+                            <th>Tempo</th>
+                            <th>Popis</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -300,24 +297,6 @@
         </div>
     </div>
 
-    <script>
-        // Define openCalculator in global scope so it can be accessed from HTML
-        function openCalculator(evt, calculatorName) {
-            let tabcontent = document.getElementsByClassName("tabcontent");
-            for (let i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-
-            let tablinks = document.getElementsByClassName("tablinks");
-            for (let i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-
-            document.getElementById(calculatorName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-    </script>
-
     <script type="module">
         import { calculatePaces } from './paceCalculator.js';
         import { VDOTCalculator } from './vdot.js';
@@ -325,9 +304,9 @@
         // Initialize VDOT Calculator
         const vdotCalculator = new VDOTCalculator();
 
-        // VDOT Calculator Event Listeners
-        document.getElementById('vdot-distance-type').addEventListener('change', function () {
-            const customDistanceField = document.getElementById('vdot-custom-distance');
+        // Unified Calculator Event Listeners
+        document.getElementById('distance-type').addEventListener('change', function () {
+            const customDistanceField = document.getElementById('custom-distance');
             if (this.value === 'custom') {
                 customDistanceField.classList.remove('hidden');
             } else {
@@ -335,51 +314,54 @@
             }
         });
 
-        document.getElementById('vdot-calculate').addEventListener('click', function () {
+        document.getElementById('calculate-all').addEventListener('click', function () {
             // Get input values
-            const distanceType = document.getElementById('vdot-distance-type').value;
-            let distanceMeters;
+            const distanceType = document.getElementById('distance-type').value;
+            let distanceMeters, distanceKm;
 
             if (distanceType === 'custom') {
-                const distanceValue = parseFloat(document.getElementById('vdot-custom-distance-value').value);
-                const distanceUnit = document.getElementById('vdot-custom-distance-unit').value;
+                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const distanceUnit = document.getElementById('custom-distance-unit').value;
 
                 if (distanceUnit === 'km') {
                     distanceMeters = distanceValue * 1000;
+                    distanceKm = distanceValue;
                 } else if (distanceUnit === 'm') {
                     distanceMeters = distanceValue;
+                    distanceKm = distanceValue / 1000;
                 }
             } else {
                 // Get standard distance in meters
                 distanceMeters = vdotCalculator.distanceMap[distanceType];
+                distanceKm = distanceMeters / 1000;
             }
 
-            // Get time from separate hour, minute, second inputs instead of text field
-            const hours = parseInt(document.getElementById('vdot-hours').value || 0);
-            const minutes = parseInt(document.getElementById('vdot-minutes').value || 0);
-            const seconds = parseInt(document.getElementById('vdot-seconds').value || 0);
+            // Get time from separate hour, minute, second inputs
+            const hours = parseInt(document.getElementById('hours').value || 0);
+            const minutes = parseInt(document.getElementById('minutes').value || 0);
+            const seconds = parseInt(document.getElementById('seconds').value || 0);
 
             // Format time string in the format expected by the calculator
             const timeStr = hours > 0
                 ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
                 : `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-            const temperature = document.getElementById('vdot-temperature').value ?
-                parseFloat(document.getElementById('vdot-temperature').value) : null;
-            const temperatureUnit = document.getElementById('vdot-temperature-unit').value;
-            const altitude = document.getElementById('vdot-altitude').value ?
-                parseFloat(document.getElementById('vdot-altitude').value) : null;
+            const temperature = document.getElementById('temperature').value ?
+                parseFloat(document.getElementById('temperature').value) : null;
+            const temperatureUnit = document.getElementById('temperature-unit').value;
+            const altitude = document.getElementById('altitude').value ?
+                parseFloat(document.getElementById('altitude').value) : null;
             const altitudeUnit = "m"; // Always use meters
 
             // Validate time inputs
             if (isNaN(hours) || isNaN(minutes) || isNaN(seconds) ||
                 (hours === 0 && minutes === 0 && seconds === 0)) {
-                alert('Please enter a valid time');
+                alert('Zadejte prosím platný čas');
                 return;
             }
 
-            // Calculate results
-            const results = vdotCalculator.calculate({
+            // Calculate VDOT results
+            const vdotResults = vdotCalculator.calculate({
                 distance: distanceMeters,
                 time: timeStr,
                 temperature: temperature,
@@ -388,8 +370,11 @@
                 altitudeUnit: altitudeUnit
             });
 
-            // Display results
-            document.getElementById('vdot-score').textContent = results.vdot;
+            // Calculate pace results
+            const paceResults = calculatePaces(distanceKm, hours, minutes, seconds);
+
+            // Display VDOT results
+            document.getElementById('vdot-score').textContent = vdotResults.vdot;
 
             // Fill Training Paces table
             const trainingPacesTable = document.getElementById('vdot-training-paces').getElementsByTagName('tbody')[0];
@@ -400,7 +385,7 @@
                 nameCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ');
 
                 const kmPaceCell = document.createElement('td');
-                kmPaceCell.textContent = results.trainingPaces[type].km;
+                kmPaceCell.textContent = vdotResults.trainingPaces[type].km;
 
                 row.appendChild(nameCell);
                 row.appendChild(kmPaceCell);
@@ -418,13 +403,13 @@
                 distanceCell.textContent = `${distance}m`;
 
                 const thresholdCell = document.createElement('td');
-                thresholdCell.textContent = results.trainingPaces.threshold[distance] || '-';
+                thresholdCell.textContent = vdotResults.trainingPaces.threshold[distance] || '-';
 
                 const intervalCell = document.createElement('td');
-                intervalCell.textContent = results.trainingPaces.interval[distance] || '-';
+                intervalCell.textContent = vdotResults.trainingPaces.interval[distance] || '-';
 
                 const repetitionCell = document.createElement('td');
-                repetitionCell.textContent = results.trainingPaces.repetition[distance] || '-';
+                repetitionCell.textContent = vdotResults.trainingPaces.repetition[distance] || '-';
 
                 row.appendChild(distanceCell);
                 row.appendChild(thresholdCell);
@@ -438,7 +423,7 @@
             performancesTable.innerHTML = '';
 
             for (const distance of vdotCalculator.equivalentDistances) {
-                const performance = results.equivalentPerformances[distance];
+                const performance = vdotResults.equivalentPerformances[distance];
                 const row = document.createElement('tr');
 
                 const distanceCell = document.createElement('td');
@@ -456,64 +441,23 @@
                 performancesTable.appendChild(row);
             }
 
-            // Show results
+            // Show VDOT results
             document.getElementById('vdot-results').classList.remove('hidden');
-        });
 
-        // Add descriptions for VDOT paces
-        document.addEventListener('DOMContentLoaded', function () {
-            // Add description text under the VDOT calculator 
-            const vdotSection = document.querySelector('#vdot p');
-            vdotSection.innerHTML = 'Based on Dr. Jack Daniels\' running formula<br><small>This calculator determines your VDOT (a measure of running fitness) and equivalent race performances and training paces.</small>';
-
-            // Add additional description for the pace types
-            const paceDescriptions = {
-                easy: "Recovery runs and easy aerobic training",
-                marathon: "Marathon-specific pace training",
-                threshold: "Threshold/tempo runs (comfortably hard)",
-                interval: "VO₂max intervals (hard effort)",
-                repetition: "Repetitions for speed (very hard)",
-                "fast-reps": "Sprint training (all-out effort)"
-            };
-
-            // Create a hidden div with pace descriptions for tooltip/reference
-            const descDiv = document.createElement('div');
-            descDiv.className = 'hidden';
-            descDiv.id = 'pace-descriptions';
-
-            for (const [type, desc] of Object.entries(paceDescriptions)) {
-                const p = document.createElement('p');
-                p.innerHTML = `<strong>${type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}:</strong> ${desc}`;
-                descDiv.appendChild(p);
-            }
-
-            document.querySelector('#vdot').appendChild(descDiv);
-        });
-
-        // Pace Calculator Event Listeners
-        document.getElementById('pace-calculate').addEventListener('click', function () {
-            // Get input values
-            const distance = parseFloat(document.getElementById('pace-distance').value);
-            const hours = parseInt(document.getElementById('pace-hours').value || 0);
-            const minutes = parseInt(document.getElementById('pace-minutes').value || 0);
-            const seconds = parseInt(document.getElementById('pace-seconds').value || 0);
-
-            // Calculate results - always use kilometers
-            const paceResults = calculatePaces(distance, hours, minutes, seconds);
-
+            // Display pace results if available
             if (paceResults) {
-                // Fill Training Paces table
+                // Fill Pace Training Paces table
                 const pacesTable = document.getElementById('pace-training-paces').getElementsByTagName('tbody')[0];
                 pacesTable.innerHTML = '';
 
                 const paceDescriptions = {
-                    easy: "Easy/Recovery runs",
-                    tempo: "Tempo/Threshold runs",
-                    vo2max: "VO2max/Interval training",
-                    speedForm: "Speed/Form training",
-                    longRunLower: "Long run (lower range)",
-                    longRunUpper: "Long run (upper range)",
-                    yasso800: "Yasso 800s"
+                    easy: "Lehké/regenerační běhy",
+                    tempo: "Tempové běhy",
+                    vo2max: "VO2max/intervalový trénink",
+                    speedForm: "Rychlostní/formový trénink",
+                    longRunLower: "Dlouhý běh (nižší rozsah)",
+                    longRunUpper: "Dlouhý běh (vyšší rozsah)",
+                    yasso800: "Yasso 800"
                 };
 
                 for (const [type, pace] of Object.entries(paceResults)) {
@@ -534,11 +478,34 @@
                     pacesTable.appendChild(row);
                 }
 
-                // Show results
+                // Show pace results
                 document.getElementById('pace-results').classList.remove('hidden');
-            } else {
-                alert('Please enter valid input values');
             }
+        });
+
+        // Add additional description for the pace types
+        document.addEventListener('DOMContentLoaded', function () {
+            const paceDescriptions = {
+                easy: "Regenerační běhy a lehký aerobní trénink",
+                marathon: "Trénink v maratonském tempu",
+                threshold: "Tempové běhy (příjemně náročné)",
+                interval: "VO₂max intervaly (těžké úsilí)",
+                repetition: "Opakování pro rychlost (velmi těžké)",
+                "fast-reps": "Sprintový trénink (maximální úsilí)"
+            };
+
+            // Create a hidden div with pace descriptions for tooltip/reference
+            const descDiv = document.createElement('div');
+            descDiv.className = 'hidden';
+            descDiv.id = 'pace-descriptions';
+
+            for (const [type, desc] of Object.entries(paceDescriptions)) {
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}:</strong> ${desc}`;
+                descDiv.appendChild(p);
+            }
+
+            document.querySelector('.calculator-section').appendChild(descDiv);
         });
     </script>
 </body>
