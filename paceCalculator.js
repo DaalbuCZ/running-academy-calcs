@@ -24,11 +24,10 @@ function calculatePaceFactor(value) {
 /**
  * Formats a pace value to minutes:seconds format
  * @param {number} paceValue - The pace value
- * @param {boolean} isMiles - Whether the pace is in miles (true) or kilometers (false)
  * @returns {string} The formatted pace (e.g., "5:30")
  */
-function formatPace(paceValue, isMiles = false) {
-  const pace = (1 / paceValue) * (isMiles ? 1609 : 1000);
+function formatPace(paceValue) {
+  const pace = (1 / paceValue) * 1000;
   const minutes = Math.floor(pace);
   const seconds = Math.floor(60 * (pace - minutes));
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -53,42 +52,32 @@ function calculateVO2Max(distanceMeters, timeMinutes) {
 /**
  * Calculates training paces based on VO2max
  * @param {number} vo2max - The VO2max value
- * @param {boolean} inMiles - Whether to return paces in miles (true) or kilometers (false)
  * @returns {Object} Object containing various training paces
  */
-function calculateTrainingPaces(vo2max, inMiles = true) {
+function calculateTrainingPaces(vo2max) {
   const easyPaceFactor = calculatePaceFactor(0.7 * vo2max);
   const vo2maxPaceFactor = calculatePaceFactor(vo2max);
 
   return {
-    easy: formatPace(easyPaceFactor, inMiles),
-    tempo: formatPace(calculatePaceFactor(0.88 * vo2max), inMiles),
-    vo2max: formatPace(vo2maxPaceFactor, inMiles),
-    speedForm: formatPace(calculatePaceFactor(1.1 * vo2max), inMiles),
-    longRunLower: formatPace(easyPaceFactor, inMiles),
-    longRunUpper: formatPace(calculatePaceFactor(0.6 * vo2max), inMiles),
-    yasso800: formatPace(1.95 * vo2maxPaceFactor, true),
+    easy: formatPace(easyPaceFactor),
+    tempo: formatPace(calculatePaceFactor(0.88 * vo2max)),
+    vo2max: formatPace(vo2maxPaceFactor),
+    speedForm: formatPace(calculatePaceFactor(1.1 * vo2max)),
+    longRunLower: formatPace(easyPaceFactor),
+    longRunUpper: formatPace(calculatePaceFactor(0.6 * vo2max)),
+    yasso800: (Math.floor(vo2maxPaceFactor * 195) / 100).toFixed(2),
   };
 }
 
 /**
  * Main function to calculate all training paces based on race results
- * @param {number} raceDistance - Race distance in kilometers or miles
- * @param {boolean} isKilometers - Whether the distance is in kilometers (true) or miles (false)
+ * @param {number} raceDistance - Race distance in kilometers
  * @param {number} hours - Race time hours
  * @param {number} minutes - Race time minutes
  * @param {number} seconds - Race time seconds
- * @param {boolean} outputInMiles - Whether to output paces in min/mile (true) or min/km (false)
  * @returns {Object|null} Training paces object or null if inputs are invalid
  */
-function calculatePaces(
-  raceDistance,
-  isKilometers,
-  hours,
-  minutes,
-  seconds,
-  outputInMiles = true
-) {
+function calculatePaces(raceDistance, hours, minutes, seconds) {
   // Validate inputs
   if (!raceDistance || raceDistance <= 0) {
     return null; // Invalid race length
@@ -110,7 +99,7 @@ function calculatePaces(
   }
 
   // Convert distance to meters
-  const distanceMeters = raceDistance * (isKilometers ? 1000 : 1609);
+  const distanceMeters = raceDistance * 1000;
 
   // Calculate VO2max
   const vo2max = calculateVO2Max(distanceMeters, totalTimeMinutes);
@@ -120,7 +109,7 @@ function calculatePaces(
   }
 
   // Return all training paces
-  return calculateTrainingPaces(vo2max, outputInMiles);
+  return calculateTrainingPaces(vo2max);
 }
 
 // Export the functions

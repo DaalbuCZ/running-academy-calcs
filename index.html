@@ -4,21 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Running Calculators</title>
+    <title>Running Academy Calculators</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "League Gothic", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings:
+                "wdth" 100;
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            color: #333;
+            color: white;
+            background-color: #121212;
+
         }
 
         .tab {
             overflow: hidden;
             border: 1px solid #ccc;
-            background-color: #555555;
-            border-radius: 5px 5px 0 0;
+            background-color: #121212;
+            border-radius: 5px 5px 5px 5px;
         }
 
         .tab button {
@@ -33,11 +40,11 @@
         }
 
         .tab button:hover {
-            background-color: #ddd;
+            background-color: #d4b46c;
         }
 
         .tab button.active {
-            background-color: #3498db;
+            background-color: #c3931c;
             color: white;
         }
 
@@ -64,13 +71,13 @@
         .result-section {
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #f9f9f9;
+            background-color: #121212;
             border-radius: 5px;
         }
 
         h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
+            color: white;
+            border-bottom: 2px solid #414141;
             padding-bottom: 5px;
         }
 
@@ -85,10 +92,12 @@
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            background-color: #121212;
+            color: white;
         }
 
         button {
-            background-color: #3498db;
+            background-color: #c3931c;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -98,7 +107,7 @@
         }
 
         button:hover {
-            background-color: #2980b9;
+            background-color: #d4b46c;
         }
 
         table {
@@ -115,7 +124,7 @@
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #121212;
         }
 
         .hidden {
@@ -132,7 +141,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 15px;
-            background-color: white;
+            background-color: #121212;
         }
 
         .unit-toggle {
@@ -142,7 +151,7 @@
 </head>
 
 <body>
-    <h1>Running Calculators</h1>
+    <h1>Running Academy Calculators</h1>
 
     <div class="tab">
         <button class="tablinks active" onclick="openCalculator(event, 'vdot')">VDOT Calculator</button>
@@ -155,14 +164,6 @@
 
 
         <div class="input-section">
-            <div class="unit-toggle">
-                <label>Units:</label>
-                <input type="radio" id="vdot-metric" name="vdot-units" value="metric" checked>
-                <label for="vdot-metric" style="width: auto;">Metric</label>
-                <input type="radio" id="vdot-imperial" name="vdot-units" value="imperial">
-                <label for="vdot-imperial" style="width: auto;">Imperial</label>
-            </div>
-
             <div>
                 <label for="vdot-distance-type">Race Distance:</label>
                 <select id="vdot-distance-type">
@@ -179,7 +180,6 @@
                     <select id="vdot-custom-distance-unit">
                         <option value="km">km</option>
                         <option value="m">m</option>
-                        <option value="mi">miles</option>
                     </select>
                 </div>
             </div>
@@ -204,10 +204,7 @@
             <div>
                 <label for="vdot-altitude">Altitude:</label>
                 <input type="number" id="vdot-altitude" min="0" step="1">
-                <select id="vdot-altitude-unit">
-                    <option value="m">m</option>
-                    <option value="ft">ft</option>
-                </select>
+                <label for="vdot-altitude-unit" style="width: auto;">meters</label>
                 <small>(optional)</small>
             </div>
 
@@ -225,7 +222,6 @@
                             <tr>
                                 <th>Type</th>
                                 <th>Pace/km</th>
-                                <th>Pace/mi</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -255,7 +251,6 @@
                                 <th>Distance</th>
                                 <th>Time</th>
                                 <th>Pace/km</th>
-                                <th>Pace/mi</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -271,18 +266,10 @@
         <p>Calculate training paces based on race performance</p>
 
         <div class="input-section">
-            <div class="unit-toggle">
-                <label>Units:</label>
-                <input type="radio" id="pace-metric" name="pace-units" value="metric" checked>
-                <label for="pace-metric" style="width: auto;">Metric</label>
-                <input type="radio" id="pace-imperial" name="pace-units" value="imperial">
-                <label for="pace-imperial" style="width: auto;">Imperial</label>
-            </div>
-
             <div>
                 <label for="pace-distance">Race Distance:</label>
                 <input type="number" id="pace-distance" min="0.1" step="0.1">
-                <span id="pace-distance-unit">kilometers</span>
+                <span>kilometers</span>
             </div>
 
             <div>
@@ -361,8 +348,6 @@
                     distanceMeters = distanceValue * 1000;
                 } else if (distanceUnit === 'm') {
                     distanceMeters = distanceValue;
-                } else if (distanceUnit === 'mi') {
-                    distanceMeters = distanceValue * 1609.344;
                 }
             } else {
                 // Get standard distance in meters
@@ -384,7 +369,7 @@
             const temperatureUnit = document.getElementById('vdot-temperature-unit').value;
             const altitude = document.getElementById('vdot-altitude').value ?
                 parseFloat(document.getElementById('vdot-altitude').value) : null;
-            const altitudeUnit = document.getElementById('vdot-altitude-unit').value;
+            const altitudeUnit = "m"; // Always use meters
 
             // Validate time inputs
             if (isNaN(hours) || isNaN(minutes) || isNaN(seconds) ||
@@ -417,12 +402,8 @@
                 const kmPaceCell = document.createElement('td');
                 kmPaceCell.textContent = results.trainingPaces[type].km;
 
-                const miPaceCell = document.createElement('td');
-                miPaceCell.textContent = results.trainingPaces[type].mi;
-
                 row.appendChild(nameCell);
                 row.appendChild(kmPaceCell);
-                row.appendChild(miPaceCell);
                 trainingPacesTable.appendChild(row);
             }
 
@@ -469,13 +450,9 @@
                 const kmPaceCell = document.createElement('td');
                 kmPaceCell.textContent = performance.paceKm;
 
-                const miPaceCell = document.createElement('td');
-                miPaceCell.textContent = performance.paceMile;
-
                 row.appendChild(distanceCell);
                 row.appendChild(timeCell);
                 row.appendChild(kmPaceCell);
-                row.appendChild(miPaceCell);
                 performancesTable.appendChild(row);
             }
 
@@ -514,28 +491,15 @@
         });
 
         // Pace Calculator Event Listeners
-        document.querySelectorAll('input[name="pace-units"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                const distanceUnit = document.getElementById('pace-distance-unit');
-                if (this.value === 'metric') {
-                    distanceUnit.textContent = 'kilometers';
-                } else {
-                    distanceUnit.textContent = 'miles';
-                }
-            });
-        });
-
         document.getElementById('pace-calculate').addEventListener('click', function () {
             // Get input values
             const distance = parseFloat(document.getElementById('pace-distance').value);
-            const isKilometers = document.getElementById('pace-metric').checked;
             const hours = parseInt(document.getElementById('pace-hours').value || 0);
             const minutes = parseInt(document.getElementById('pace-minutes').value || 0);
             const seconds = parseInt(document.getElementById('pace-seconds').value || 0);
-            const outputInMiles = !isKilometers;
 
-            // Calculate results
-            const paceResults = calculatePaces(distance, isKilometers, hours, minutes, seconds, outputInMiles);
+            // Calculate results - always use kilometers
+            const paceResults = calculatePaces(distance, hours, minutes, seconds);
 
             if (paceResults) {
                 // Fill Training Paces table
@@ -559,7 +523,7 @@
                     typeCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1').trim();
 
                     const paceCell = document.createElement('td');
-                    paceCell.textContent = pace + (type === 'yasso800' ? ' min' : isKilometers ? ' min/km' : ' min/mi');
+                    paceCell.textContent = pace + (type === 'yasso800' ? ' min' : ' min/km');
 
                     const descriptionCell = document.createElement('td');
                     descriptionCell.textContent = paceDescriptions[type] || '';

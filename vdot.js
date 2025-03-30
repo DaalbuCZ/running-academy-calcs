@@ -11,12 +11,7 @@ class VDOTCalculator {
       "15k": 15000,
       "10k": 10000,
       "5k": 5000,
-      "3mi": 4828.032,
-      "2mi": 3218.688,
-      "3200m": 3200,
       "3k": 3000,
-      "1mi": 1609.344,
-      "1600m": 1600,
       "1500m": 1500,
     };
 
@@ -27,12 +22,7 @@ class VDOTCalculator {
       "15k",
       "10k",
       "5k",
-      "3mi",
-      "2mi",
-      "3200m",
       "3k",
-      "1mi",
-      "1600m",
       "1500m",
     ];
 
@@ -99,7 +89,6 @@ class VDOTCalculator {
 
       paces[distanceName] = {
         time: this._formatTime(timeSeconds),
-        paceMile: this._formatPace(timeSeconds / (distance / 1609.344)),
         paceKm: this._formatPace(timeSeconds / (distance / 1000)),
       };
     });
@@ -141,17 +130,10 @@ class VDOTCalculator {
       "fast-reps": 1.1, // 110% of VDOT (sprint pace)
     };
 
-    // Calculate mile and kilometer paces
+    // Calculate kilometer paces
     Object.keys(paceAdjustments).forEach((type) => {
       const adjustment = paceAdjustments[type];
-      const milePaceSeconds = this._calculatePaceFromVDOT(
-        vdot,
-        1609.344,
-        adjustment
-      );
       const kmPaceSeconds = this._calculatePaceFromVDOT(vdot, 1000, adjustment);
-
-      paces[type]["mi"] = this._formatPace(milePaceSeconds);
       paces[type]["km"] = this._formatPace(kmPaceSeconds);
     });
 
@@ -195,7 +177,6 @@ class VDOTCalculator {
 
       performances[distanceName] = {
         time: this._formatTime(timeSeconds),
-        paceMile: this._formatPace(timeSeconds / (distance / 1609.344)),
         paceKm: this._formatPace(timeSeconds / (distance / 1000)),
       };
     });
@@ -222,18 +203,15 @@ class VDOTCalculator {
 
   /**
    * Calculate altitude adjustment factor
-   * @param {number} altitude - Altitude in feet
+   * @param {number} altitude - Altitude in meters
    * @returns {number} - Adjustment factor
    */
-  calculateAltitudeAdjustment(altitude, isMeters = false) {
-    // Convert meters to feet if needed
-    const altFeet = isMeters ? altitude * 3.28084 : altitude;
-
-    // Adjustment based on altitude (simplified)
-    if (altFeet < 1000) return 1.0; // No adjustment for low altitudes
-    if (altFeet < 3000) return 1.02;
-    if (altFeet < 5000) return 1.04;
-    if (altFeet < 7000) return 1.07;
+  calculateAltitudeAdjustment(altitude) {
+    // Adjustment based on altitude (meters)
+    if (altitude < 305) return 1.0; // No adjustment for low altitudes
+    if (altitude < 914) return 1.02;
+    if (altitude < 1524) return 1.04;
+    if (altitude < 2134) return 1.07;
     return 1.1; // 10% slower for very high altitudes
   }
 
@@ -270,12 +248,23 @@ class VDOTCalculator {
    * @returns {number} - Velocity in m/s
    */
   _getVelocityFromVDOT(vdot, percentVO2max) {
-    // This is a simplified formula based on Daniels' tables
+    // Apply the percentVO2max adjustment
     const adjustedVDOT = vdot * (percentVO2max / 100);
 
-    // Approximate velocity from adjusted VDOT
-    // Real formula is more complex
-    return adjustedVDOT / 0.182258 / 60;
+    // Solve the quadratic equation: -4.6 + 0.182258v + 0.000104v² = adjustedVDOT
+    // Where v = velocity*60
+    const a = 0.000104;
+    const b = 0.182258;
+    const c = -4.6 - adjustedVDOT;
+
+    // Use the quadratic formula: (-b + sqrt(b² - 4ac)) / 2a
+    const discriminant = Math.pow(b, 2) - 4 * a * c;
+    if (discriminant < 0) return 0; // No real solution
+
+    const v = (-b + Math.sqrt(discriminant)) / (2 * a);
+
+    // Convert v back to m/s (v was velocity in meters/minute)
+    return v / 60;
   }
 
   /**
