@@ -120,14 +120,14 @@ class VDOTCalculator {
       "fast-reps": {},
     };
 
-    // Pace adjustments based on percentage of VDOT effort
+    // Adjust these values to more closely match Daniels' tables
     const paceAdjustments = {
-      easy: 0.7, // 70% of VDOT effort
-      marathon: 0.85, // 85% of VDOT effort
-      threshold: 0.88, // 88% of VDOT effort
-      interval: 0.98, // 98% of VDOT effort
-      repetition: 1.05, // 105% of VDOT (faster than race pace)
-      "fast-reps": 1.1, // 110% of VDOT (sprint pace)
+      easy: 0.71, // 71% of VDOT effort - unchanged
+      marathon: 0.85, // 85% of VDOT effort - increased for faster pace
+      threshold: 0.9, // 90% of VDOT effort - increased for faster pace
+      interval: 0.98, // 98% of VDOT effort - unchanged
+      repetition: 1.07, // 107% of VDOT - unchanged
+      "fast-reps": 1.12, // 112% of VDOT - unchanged
     };
 
     // Calculate kilometer paces
@@ -143,19 +143,18 @@ class VDOTCalculator {
 
     trackPaceTypes.forEach((type) => {
       trackDistances.forEach((distance) => {
+        // Apply constraints on which paces to calculate for each distance
         if (
           (type === "threshold" && distance >= 600) ||
-          type === "interval" ||
-          type === "repetition" ||
+          (type === "interval" && distance >= 200) ||
+          (type === "repetition" && distance <= 800) ||
           (type === "fast-reps" && distance <= 400)
         ) {
           const adjustment = paceAdjustments[type];
-          const seconds = this._calculatePaceFromVDOT(
-            vdot,
-            distance,
-            adjustment
-          );
-          paces[type][`${distance}`] = this._formatTime(seconds);
+          // For intervals, we want the total time, not pace
+          const totalSeconds =
+            this._predictTimeFromVDOT(vdot, distance) / adjustment;
+          paces[type][`${distance}m`] = this._formatTime(totalSeconds);
         }
       });
     });
