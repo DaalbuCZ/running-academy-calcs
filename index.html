@@ -205,6 +205,30 @@
                 text-align: center;
             }
         }
+
+        /* Add these styles to your existing <style> section */
+        .toggle-button {
+            background-color: transparent;
+            color: #c3931c;
+            border: 1px solid #c3931c;
+            text-align: left;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .toggle-button:hover {
+            background-color: rgba(195, 147, 28, 0.1);
+        }
+
+        #advanced-options {
+            border-left: 2px solid #c3931c;
+            padding-left: 15px;
+            margin-left: 5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 
@@ -235,7 +259,7 @@
             </div>
 
             <div>
-                <label>Závodní čas:</label>
+                <label>Čas:</label>
                 <div class="time-inputs">
                     <input type="number" id="hours" min="0" max="99" placeholder="HH" style="width: 60px;">
                     <input type="number" id="minutes" min="0" max="59" placeholder="MM" style="width: 60px;">
@@ -243,21 +267,31 @@
                 </div>
             </div>
 
+            <!-- Add Advanced Options toggle button -->
             <div>
-                <label for="temperature">Teplota:</label>
-                <input type="number" id="temperature" min="-50" max="50" step="0.1">
-                <select id="temperature-unit">
-                    <option value="C">°C</option>
-                    <option value="F">°F</option>
-                </select>
-                <small>(volitelné)</small>
+                <button type="button" id="advanced-options-toggle" class="toggle-button">
+                    Pokročilé možnosti ▼
+                </button>
             </div>
 
-            <div>
-                <label for="altitude">Nadmořská výška:</label>
-                <input type="number" id="altitude" min="0" step="1">
-                <label for="altitude-unit" style="width: auto;">metrů</label>
-                <small>(volitelné)</small>
+            <!-- Advanced options container -->
+            <div id="advanced-options" class="hidden">
+                <div>
+                    <label for="temperature">Teplota:</label>
+                    <input type="number" id="temperature" min="-50" max="50" step="0.1">
+                    <select id="temperature-unit">
+                        <option value="C">°C</option>
+                        <option value="F">°F</option>
+                    </select>
+                    <small>(volitelné)</small>
+                </div>
+
+                <div>
+                    <label for="altitude">Nadmořská výška:</label>
+                    <input type="number" id="altitude" min="0" step="1">
+                    <label for="altitude-unit" style="width: auto;">metrů</label>
+                    <small>(volitelné)</small>
+                </div>
             </div>
 
             <button id="calculate-all">Vypočítat</button>
@@ -320,7 +354,7 @@
 
         <!-- Pace Results Section -->
         <div id="pace-results" class="result-section hidden">
-            <h3>Vaše tréninková tempa</h3>
+            <h3>Tréninková tempa - jiný výpočet</h3>
 
             <div class="result-card">
                 <div class="table-container">
@@ -345,6 +379,20 @@
 
         // Initialize VDOT Calculator
         const vdotCalculator = new VDOTCalculator();
+
+        // Add toggle functionality for advanced options
+        document.getElementById('advanced-options-toggle').addEventListener('click', function () {
+            const advancedOptions = document.getElementById('advanced-options');
+            const isHidden = advancedOptions.classList.contains('hidden');
+
+            if (isHidden) {
+                advancedOptions.classList.remove('hidden');
+                this.textContent = 'Pokročilé možnosti ▲';
+            } else {
+                advancedOptions.classList.add('hidden');
+                this.textContent = 'Pokročilé možnosti ▼';
+            }
+        });
 
         // Unified Calculator Event Listeners
         document.getElementById('distance-type').addEventListener('change', function () {
@@ -445,13 +493,13 @@
                 distanceCell.textContent = `${distance}m`;
 
                 const thresholdCell = document.createElement('td');
-                thresholdCell.textContent = vdotResults.trainingPaces.threshold[distance] || '-';
+                thresholdCell.textContent = vdotResults.trainingPaces.threshold[`${distance}m`] || '-';
 
                 const intervalCell = document.createElement('td');
-                intervalCell.textContent = vdotResults.trainingPaces.interval[distance] || '-';
+                intervalCell.textContent = vdotResults.trainingPaces.interval[`${distance}m`] || '-';
 
                 const repetitionCell = document.createElement('td');
-                repetitionCell.textContent = vdotResults.trainingPaces.repetition[distance] || '-';
+                repetitionCell.textContent = vdotResults.trainingPaces.repetition[`${distance}m`] || '-';
 
                 row.appendChild(distanceCell);
                 row.appendChild(thresholdCell);
