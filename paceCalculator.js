@@ -34,6 +34,22 @@ function formatPace(paceValue) {
 }
 
 /**
+ * Formats a Yasso800 pace value
+ * @param {number} paceFactor - The pace factor
+ * @returns {string} The formatted Yasso800 pace (e.g., "3:45")
+ */
+function formatYasso800(paceFactor) {
+  // Multiply by 1.95 as in the original implementation
+  const adjustedPaceFactor = 1.95 * paceFactor;
+
+  // Use miles (1609m) for calculation
+  const pace = (1 / adjustedPaceFactor) * 1609;
+  const minutes = Math.floor(pace);
+  const seconds = Math.floor(60 * (pace - minutes));
+  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
+/**
  * Calculates VO2max from distance and time
  * @param {number} distanceMeters - Race distance in meters
  * @param {number} timeMinutes - Race time in minutes
@@ -65,7 +81,7 @@ function calculateTrainingPaces(vo2max) {
     speedForm: formatPace(calculatePaceFactor(1.1 * vo2max)),
     longRunLower: formatPace(easyPaceFactor),
     longRunUpper: formatPace(calculatePaceFactor(0.6 * vo2max)),
-    yasso800: (Math.floor(vo2maxPaceFactor * 195) / 100).toFixed(2),
+    yasso800: formatYasso800(vo2maxPaceFactor),
   };
 }
 
