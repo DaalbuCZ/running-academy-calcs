@@ -76,9 +76,9 @@ function calculateTrainingPaces(vo2max) {
 
   return {
     easy: formatPace(easyPaceFactor),
-    tempo: formatPace(calculatePaceFactor(0.88 * vo2max)),
+    threshold: formatPace(calculatePaceFactor(0.88 * vo2max)),
     vo2max: formatPace(vo2maxPaceFactor),
-    speedForm: formatPace(calculatePaceFactor(1.1 * vo2max)),
+    anaerobic: formatPace(calculatePaceFactor(1.1 * vo2max)),
     longRunLower: formatPace(easyPaceFactor),
     longRunUpper: formatPace(calculatePaceFactor(0.6 * vo2max)),
     yasso800: formatYasso800(vo2maxPaceFactor),
