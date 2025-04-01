@@ -299,34 +299,17 @@
 
         <!-- VDOT Results Section -->
         <div id="vdot-results" class="result-section hidden">
-            <h3>Vaše VDOT skóre: <span id="vdot-score"></span></h3>
+            <h3>Odhad vašeho VO2max: <span id="vdot-score"></span></h3>
 
             <div class="result-grid">
                 <div class="result-card">
-                    <h4>Tréninková tempa</h4>
+                    <h4>Tréninková tempa - hobby</h4>
                     <div class="table-container">
                         <table id="vdot-training-paces">
                             <thead>
                                 <tr>
                                     <th>Typ</th>
                                     <th>Tempo/km</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="result-card">
-                    <h4>Intervaly na dráze</h4>
-                    <div class="table-container">
-                        <table id="vdot-track-intervals">
-                            <thead>
-                                <tr>
-                                    <th>Vzdálenost</th>
-                                    <th>Tempo</th>
-                                    <th>Interval</th>
-                                    <th>Opakování</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -354,7 +337,7 @@
 
         <!-- Pace Results Section -->
         <div id="pace-results" class="result-section hidden">
-            <h3>Tréninková tempa - jiný výpočet</h3>
+            <h3>Tréninková tempa - pokročilý</h3>
 
             <div class="result-card">
                 <div class="table-container">
@@ -363,7 +346,6 @@
                             <tr>
                                 <th>Typ</th>
                                 <th>Tempo</th>
-                                <th>Popis</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -482,31 +464,6 @@
                 trainingPacesTable.appendChild(row);
             }
 
-            // Fill Track Intervals table
-            const trackIntervalsTable = document.getElementById('vdot-track-intervals').getElementsByTagName('tbody')[0];
-            trackIntervalsTable.innerHTML = '';
-            const trackDistances = [1200, 800, 600, 400, 300, 200];
-
-            for (const distance of trackDistances) {
-                const row = document.createElement('tr');
-                const distanceCell = document.createElement('td');
-                distanceCell.textContent = `${distance}m`;
-
-                const thresholdCell = document.createElement('td');
-                thresholdCell.textContent = vdotResults.trainingPaces.threshold[`${distance}m`] || '-';
-
-                const intervalCell = document.createElement('td');
-                intervalCell.textContent = vdotResults.trainingPaces.interval[`${distance}m`] || '-';
-
-                const repetitionCell = document.createElement('td');
-                repetitionCell.textContent = vdotResults.trainingPaces.repetition[`${distance}m`] || '-';
-
-                row.appendChild(distanceCell);
-                row.appendChild(thresholdCell);
-                row.appendChild(intervalCell);
-                row.appendChild(repetitionCell);
-                trackIntervalsTable.appendChild(row);
-            }
 
             // Fill Equivalent Performances table
             const performancesTable = document.getElementById('vdot-equivalent-performances').getElementsByTagName('tbody')[0];
@@ -540,16 +497,6 @@
                 const pacesTable = document.getElementById('pace-training-paces').getElementsByTagName('tbody')[0];
                 pacesTable.innerHTML = '';
 
-                const paceDescriptions = {
-                    easy: "Lehké/regenerační běhy",
-                    tempo: "Tempové běhy",
-                    vo2max: "VO2max/intervalový trénink",
-                    speedForm: "Rychlostní/formový trénink",
-                    longRunLower: "Dlouhý běh (nižší rozsah)",
-                    longRunUpper: "Dlouhý běh (vyšší rozsah)",
-                    yasso800: "Yasso 800m"
-                };
-
                 for (const [type, pace] of Object.entries(paceResults)) {
                     const row = document.createElement('tr');
 
@@ -559,12 +506,9 @@
                     const paceCell = document.createElement('td');
                     paceCell.textContent = pace + (type === 'yasso800' ? ' min' : ' min/km');
 
-                    const descriptionCell = document.createElement('td');
-                    descriptionCell.textContent = paceDescriptions[type] || '';
 
                     row.appendChild(typeCell);
                     row.appendChild(paceCell);
-                    row.appendChild(descriptionCell);
                     pacesTable.appendChild(row);
                 }
 
@@ -579,9 +523,9 @@
                 easy: "Regenerační běhy a lehký aerobní trénink",
                 marathon: "Trénink v maratonském tempu",
                 threshold: "Tempové běhy (příjemně náročné)",
-                interval: "VO₂max intervaly (těžké úsilí)",
-                repetition: "Opakování pro rychlost (velmi těžké)",
-                "fast-reps": "Sprintový trénink (maximální úsilí)"
+                VO2max: "VO₂max intervaly (těžké úsilí)",
+                anaerobic: "Opakování pro rychlost (velmi těžké)",
+                "speed": "Sprintový trénink (maximální úsilí)"
             };
 
             // Create a hidden div with pace descriptions for tooltip/reference

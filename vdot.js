@@ -31,9 +31,9 @@ class VDOTCalculator {
       "easy",
       "marathon",
       "threshold",
-      "interval",
-      "repetition",
-      "fast-reps",
+      "VO2max",
+      "anaerobic",
+      "speed",
     ];
   }
 
@@ -115,9 +115,9 @@ class VDOTCalculator {
       easy: {},
       marathon: {},
       threshold: {},
-      interval: {},
-      repetition: {},
-      "fast-reps": {},
+      VO2max: {},
+      anaerobic: {},
+      speed: {},
     };
 
     // Adjust these values to more closely match Daniels' tables
@@ -125,9 +125,9 @@ class VDOTCalculator {
       easy: 0.71, // 71% of VDOT effort - unchanged
       marathon: 0.85, // 85% of VDOT effort - increased for faster pace
       threshold: 0.9, // 90% of VDOT effort - increased for faster pace
-      interval: 0.98, // 98% of VDOT effort - unchanged
-      repetition: 1.07, // 107% of VDOT - unchanged
-      "fast-reps": 1.12, // 112% of VDOT - unchanged
+      VO2max: 0.98, // 98% of VDOT effort - unchanged
+      anaerobic: 1.07, // 107% of VDOT - unchanged
+      speed: 1.12, // 112% of VDOT - unchanged
     };
 
     // Calculate kilometer paces
@@ -135,28 +135,6 @@ class VDOTCalculator {
       const adjustment = paceAdjustments[type];
       const kmPaceSeconds = this._calculatePaceFromVDOT(vdot, 1000, adjustment);
       paces[type]["km"] = this._formatPace(kmPaceSeconds);
-    });
-
-    // Calculate track interval distances (1200m, 800m, 600m, 400m, 300m, 200m)
-    const trackDistances = [1200, 800, 600, 400, 300, 200];
-    const trackPaceTypes = ["threshold", "interval", "repetition", "fast-reps"];
-
-    trackPaceTypes.forEach((type) => {
-      trackDistances.forEach((distance) => {
-        // Apply constraints on which paces to calculate for each distance
-        if (
-          (type === "threshold" && distance >= 600) ||
-          (type === "interval" && distance >= 200) ||
-          (type === "repetition" && distance <= 800) ||
-          (type === "fast-reps" && distance <= 400)
-        ) {
-          const adjustment = paceAdjustments[type];
-          // For intervals, we want the total time, not pace
-          const totalSeconds =
-            this._predictTimeFromVDOT(vdot, distance) / adjustment;
-          paces[type][`${distance}m`] = this._formatTime(totalSeconds);
-        }
-      });
     });
 
     return paces;
