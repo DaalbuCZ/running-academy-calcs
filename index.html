@@ -310,6 +310,7 @@
                                 <tr>
                                     <th>Typ</th>
                                     <th>Tempo/km</th>
+                                    <th>Rychlost</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -346,6 +347,7 @@
                             <tr>
                                 <th>Typ</th>
                                 <th>Tempo</th>
+                                <th>Rychlost</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -459,11 +461,14 @@
                 const kmPaceCell = document.createElement('td');
                 kmPaceCell.textContent = vdotResults.trainingPaces[type].km;
 
+                const speedCell = document.createElement('td');
+                speedCell.textContent = vdotResults.trainingPaces[type].speedKmh + ' km/h';
+
                 row.appendChild(nameCell);
                 row.appendChild(kmPaceCell);
+                row.appendChild(speedCell);
                 trainingPacesTable.appendChild(row);
             }
-
 
             // Fill Equivalent Performances table
             const performancesTable = document.getElementById('vdot-equivalent-performances').getElementsByTagName('tbody')[0];
@@ -480,7 +485,7 @@
                 timeCell.textContent = performance.time;
 
                 const kmPaceCell = document.createElement('td');
-                kmPaceCell.textContent = performance.paceKm;
+                kmPaceCell.textContent = `${performance.paceKm} (${performance.speedKmh} km/h)`;
 
                 row.appendChild(distanceCell);
                 row.appendChild(timeCell);
@@ -493,26 +498,48 @@
 
             // Display pace results if available
             if (paceResults) {
-                // Fill Pace Training Paces table
                 const pacesTable = document.getElementById('pace-training-paces').getElementsByTagName('tbody')[0];
                 pacesTable.innerHTML = '';
 
-                for (const [type, pace] of Object.entries(paceResults)) {
+                for (const [type, paceData] of Object.entries(paceResults)) {
+                    if (type !== 'yasso800') {  // Skip yasso800 as it's not a regular pace
+                        const row = document.createElement('tr');
+
+                        const typeCell = document.createElement('td');
+                        typeCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1').trim();
+
+                        const paceCell = document.createElement('td');
+                        paceCell.textContent = paceData.pace + ' min/km';
+
+                        const speedCell = document.createElement('td');
+                        speedCell.textContent = paceData.speed + ' km/h';
+
+                        row.appendChild(typeCell);
+                        row.appendChild(paceCell);
+                        row.appendChild(speedCell);
+                        pacesTable.appendChild(row);
+                    }
+                }
+
+                // Add yasso800 separately if needed
+                if (paceResults.yasso800) {
                     const row = document.createElement('tr');
 
                     const typeCell = document.createElement('td');
-                    typeCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1').trim();
+                    typeCell.textContent = 'Yasso 800m';
 
                     const paceCell = document.createElement('td');
-                    paceCell.textContent = pace + (type === 'yasso800' ? ' min' : ' min/km');
+                    paceCell.textContent = paceResults.yasso800 + ' min';
 
+                    const speedCell = document.createElement('td');
+                    speedCell.textContent = '-';
 
                     row.appendChild(typeCell);
                     row.appendChild(paceCell);
+                    row.appendChild(speedCell);
                     pacesTable.appendChild(row);
                 }
 
-                // Show pace results
                 document.getElementById('pace-results').classList.remove('hidden');
             }
         });

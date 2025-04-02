@@ -90,6 +90,7 @@ class VDOTCalculator {
       paces[distanceName] = {
         time: this._formatTime(timeSeconds),
         paceKm: this._formatPace(timeSeconds / (distance / 1000)),
+        speedKmh: this._calculateSpeed(timeSeconds / (distance / 1000)),
       };
     });
 
@@ -135,6 +136,7 @@ class VDOTCalculator {
       const adjustment = paceAdjustments[type];
       const kmPaceSeconds = this._calculatePaceFromVDOT(vdot, 1000, adjustment);
       paces[type]["km"] = this._formatPace(kmPaceSeconds);
+      paces[type]["speedKmh"] = this._calculateSpeed(kmPaceSeconds);
     });
 
     return paces;
@@ -151,10 +153,12 @@ class VDOTCalculator {
     this.equivalentDistances.forEach((distanceName) => {
       const distance = this.distanceMap[distanceName];
       const timeSeconds = this._predictTimeFromVDOT(vdot, distance);
+      const paceSeconds = timeSeconds / (distance / 1000);
 
       performances[distanceName] = {
         time: this._formatTime(timeSeconds),
-        paceKm: this._formatPace(timeSeconds / (distance / 1000)),
+        paceKm: this._formatPace(paceSeconds),
+        speedKmh: this._calculateSpeed(paceSeconds),
       };
     });
 
@@ -271,6 +275,15 @@ class VDOTCalculator {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  /**
+   * Calculate speed in km/h from pace in seconds per km
+   * @param {number} paceSeconds - Pace in seconds per kilometer
+   * @returns {string} - Speed in km/h
+   */
+  _calculateSpeed(paceSeconds) {
+    return (3600 / paceSeconds).toFixed(1);
   }
 
   /**

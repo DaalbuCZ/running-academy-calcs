@@ -22,15 +22,28 @@ function calculatePaceFactor(value) {
 }
 
 /**
+ * Converts pace to speed
+ * @param {number} paceValue - The pace value in min/km
+ * @returns {number} The speed in km/h
+ */
+function paceToSpeed(paceValue) {
+  return (60 / paceValue).toFixed(1);
+}
+
+/**
  * Formats a pace value to minutes:seconds format
  * @param {number} paceValue - The pace value
- * @returns {string} The formatted pace (e.g., "5:30")
+ * @returns {Object} The formatted pace and speed
  */
 function formatPace(paceValue) {
   const pace = (1 / paceValue) * 1000;
   const minutes = Math.floor(pace);
   const seconds = Math.floor(60 * (pace - minutes));
-  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  const speed = paceToSpeed(pace);
+  return {
+    pace: `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
+    speed: `${speed}`,
+  };
 }
 
 /**
