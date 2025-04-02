@@ -532,7 +532,13 @@
                     paceCell.textContent = paceResults.yasso800 + ' min';
 
                     const speedCell = document.createElement('td');
-                    speedCell.textContent = '-';
+                    // Calculate speed for Yasso 800m
+                    const paceParts = paceResults.yasso800.split(':');
+                    const paceMinutes = parseInt(paceParts[0]);
+                    const paceSeconds = parseInt(paceParts[1])
+                    const paceTimeSec = (paceMinutes * 60) + paceSeconds;
+                    const speed = (0.8 / (paceTimeSec / 3600)).toFixed(1); // Speed = Distance/Time
+                    speedCell.textContent = speed + ' km/h';
 
                     row.appendChild(typeCell);
                     row.appendChild(paceCell);
