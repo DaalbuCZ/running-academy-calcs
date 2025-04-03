@@ -426,11 +426,19 @@
             } else {
                 customDistanceField.classList.add('hidden');
             }
+            localStorage.setItem('distanceType', this.value);
         });
 
         document.getElementById('calculate-all').addEventListener('click', function () {
             // Get input values
             const distanceType = document.getElementById('distance-type').value;
+            localStorage.setItem('distanceType', distanceType);
+            if (distanceType === 'custom') {
+                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const distanceUnit = document.getElementById('custom-distance-unit').value;
+                localStorage.setItem('customDistanceValue', distanceValue);
+                localStorage.setItem('customDistanceUnit', distanceUnit);
+            }
             let distanceMeters, distanceKm;
 
             if (distanceType === 'custom') {
@@ -628,6 +636,38 @@
             }
 
             document.querySelector('.calculator-section').appendChild(descDiv);
+
+            const paceSpeedType = localStorage.getItem('paceSpeedType') || 'pace-to-speed';
+            document.getElementById('pace-speed-type').value = paceSpeedType;
+
+            const paceInputSection = document.getElementById('pace-input-section');
+            const speedInputSection = document.getElementById('speed-input-section');
+
+            if (paceSpeedType === 'pace-to-speed') {
+                paceInputSection.classList.remove('hidden');
+                speedInputSection.classList.add('hidden');
+            } else {
+                paceInputSection.classList.add('hidden');
+                speedInputSection.classList.remove('hidden');
+            }
+
+            document.getElementById('pace-minutes').value = localStorage.getItem('paceMinutes') || '';
+            document.getElementById('pace-seconds').value = localStorage.getItem('paceSeconds') || '';
+            document.getElementById('pace-distance-unit').value = localStorage.getItem('paceDistanceUnit') || 'km';
+            document.getElementById('pace-distance').value = localStorage.getItem('paceDistance') || '1';
+            document.getElementById('speed').value = localStorage.getItem('speed') || '';
+
+            const distanceType = localStorage.getItem('distanceType') || '5k';
+            document.getElementById('distance-type').value = distanceType;
+
+            const customDistanceField = document.getElementById('custom-distance');
+            if (distanceType === 'custom') {
+                customDistanceField.classList.remove('hidden');
+                document.getElementById('custom-distance-value').value = localStorage.getItem('customDistanceValue') || '';
+                document.getElementById('custom-distance-unit').value = localStorage.getItem('customDistanceUnit') || 'km';
+            } else {
+                customDistanceField.classList.add('hidden');
+            }
         });
 
         // New Pace to Speed Calculator Logic
@@ -642,17 +682,25 @@
                 paceInputSection.classList.add('hidden');
                 speedInputSection.classList.remove('hidden');
             }
+
+            localStorage.setItem('paceSpeedType', this.value);
         });
 
         document.getElementById('calculate-pace-speed').addEventListener('click', function () {
             const calculationType = document.getElementById('pace-speed-type').value;
+            const paceMinutes = parseFloat(document.getElementById('pace-minutes').value) || 0;
+            const paceSeconds = parseFloat(document.getElementById('pace-seconds').value) || 0;
+            const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
+            const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
+            const speed = parseFloat(document.getElementById('speed').value) || 0;
+
+            localStorage.setItem('paceMinutes', paceMinutes);
+            localStorage.setItem('paceSeconds', paceSeconds);
+            localStorage.setItem('paceDistanceUnit', paceDistanceUnit);
+            localStorage.setItem('paceDistance', paceDistance);
+            localStorage.setItem('speed', speed);
 
             if (calculationType === 'pace-to-speed') {
-                const paceMinutes = parseFloat(document.getElementById('pace-minutes').value) || 0;
-                const paceSeconds = parseFloat(document.getElementById('pace-seconds').value) || 0;
-                const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
-                const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
-
                 let totalPaceSeconds = (paceMinutes * 60) + paceSeconds;
                 if (paceDistanceUnit === 'm') {
                     totalPaceSeconds = totalPaceSeconds / (paceDistance / 1000);
@@ -664,16 +712,7 @@
 
                 document.getElementById('pace-speed-result-text').textContent = `Rychlost: ${speed.toFixed(2)} km/h`;
             } else {
-                const speed = parseFloat(document.getElementById('speed').value);
-                const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
-                const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
-
                 let totalPaceSeconds = 3600 / speed;
-                // if (paceDistanceUnit === 'm') {
-                //     totalPaceSeconds = totalPaceSeconds * (paceDistance / 1000);
-                // } else {
-                //     totalPaceSeconds = totalPaceSeconds * paceDistance;
-                // }
 
                 const paceMinutes = Math.floor(totalPaceSeconds / 60);
                 const paceSeconds = Math.round(totalPaceSeconds % 60);
