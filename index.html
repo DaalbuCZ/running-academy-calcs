@@ -357,6 +357,46 @@
         </div>
     </div>
 
+    <div class="section-divider"></div>
+
+    <!-- New Pace to Speed Calculator Section -->
+    <div class="calculator-section">
+        <h2>Převodník</h2>
+        <div class="input-section">
+            <div>
+                <label for="pace-speed-type">Typ výpočtu:</label>
+                <select id="pace-speed-type">
+                    <option value="pace-to-speed">Tempo na rychlost</option>
+                    <option value="speed-to-pace">Rychlost na tempo</option>
+                </select>
+            </div>
+
+            <div id="pace-input-section">
+                <label for="pace-minutes">Tempo:</label>
+                <input type="number" id="pace-minutes" min="0" placeholder="Minuty"> :
+                <input type="number" id="pace-seconds" min="0" max="59" placeholder="Sekundy">
+
+                <input type="number" id="pace-distance" min="0.01" step="0.01" value="1" placeholder="Vzdálenost">
+                <select id="pace-distance-unit">
+                    <option value="km">km</option>
+                    <option value="m">m</option>
+                </select>
+            </div>
+
+            <div id="speed-input-section" class="hidden">
+                <label for="speed">Rychlost (km/h):</label>
+                <input type="number" id="speed" min="0.01" step="0.01" placeholder="km/h">
+            </div>
+
+            <button id="calculate-pace-speed">Vypočítat</button>
+        </div>
+
+        <div id="pace-speed-results" class="result-section hidden">
+            <h3>Výsledek:</h3>
+            <p id="pace-speed-result-text"></p>
+        </div>
+    </div>
+
     <script type="module">
         import { calculatePaces } from './paceCalculator.js';
         import { VDOTCalculator } from './vdot.js';
@@ -548,6 +588,21 @@
 
                 document.getElementById('pace-results').classList.remove('hidden');
             }
+
+            // Prefill custom distance parameters to the new calculator
+            if (distanceType === 'custom') {
+                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const distanceUnit = document.getElementById('custom-distance-unit').value;
+
+                document.getElementById('pace-distance-unit').value = distanceUnit;
+                document.getElementById('pace-distance').value = distanceValue;
+            } else {
+                document.getElementById('pace-distance-unit').value = 'km';
+                document.getElementById('pace-distance').value = 1;
+            }
+
+            document.getElementById('pace-minutes').value = minutes;
+            document.getElementById('pace-seconds').value = seconds;
         });
 
         // Add additional description for the pace types
@@ -573,6 +628,60 @@
             }
 
             document.querySelector('.calculator-section').appendChild(descDiv);
+        });
+
+        // New Pace to Speed Calculator Logic
+        document.getElementById('pace-speed-type').addEventListener('change', function () {
+            const paceInputSection = document.getElementById('pace-input-section');
+            const speedInputSection = document.getElementById('speed-input-section');
+
+            if (this.value === 'pace-to-speed') {
+                paceInputSection.classList.remove('hidden');
+                speedInputSection.classList.add('hidden');
+            } else {
+                paceInputSection.classList.add('hidden');
+                speedInputSection.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('calculate-pace-speed').addEventListener('click', function () {
+            const calculationType = document.getElementById('pace-speed-type').value;
+
+            if (calculationType === 'pace-to-speed') {
+                const paceMinutes = parseFloat(document.getElementById('pace-minutes').value) || 0;
+                const paceSeconds = parseFloat(document.getElementById('pace-seconds').value) || 0;
+                const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
+                const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
+
+                let totalPaceSeconds = (paceMinutes * 60) + paceSeconds;
+                if (paceDistanceUnit === 'm') {
+                    totalPaceSeconds = totalPaceSeconds / (paceDistance / 1000);
+                } else {
+                    totalPaceSeconds = totalPaceSeconds / paceDistance;
+                }
+
+                const speed = 3600 / totalPaceSeconds;
+
+                document.getElementById('pace-speed-result-text').textContent = `Rychlost: ${speed.toFixed(2)} km/h`;
+            } else {
+                const speed = parseFloat(document.getElementById('speed').value);
+                const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
+                const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
+
+                let totalPaceSeconds = 3600 / speed;
+                // if (paceDistanceUnit === 'm') {
+                //     totalPaceSeconds = totalPaceSeconds * (paceDistance / 1000);
+                // } else {
+                //     totalPaceSeconds = totalPaceSeconds * paceDistance;
+                // }
+
+                const paceMinutes = Math.floor(totalPaceSeconds / 60);
+                const paceSeconds = Math.round(totalPaceSeconds % 60);
+
+                document.getElementById('pace-speed-result-text').textContent = `Tempo: ${paceMinutes}:${paceSeconds < 10 ? '0' : ''}${paceSeconds} min/${paceDistanceUnit}`;
+            }
+
+            document.getElementById('pace-speed-results').classList.remove('hidden');
         });
     </script>
 </body>
