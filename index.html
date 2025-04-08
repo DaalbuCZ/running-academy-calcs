@@ -346,7 +346,7 @@
                         <thead>
                             <tr>
                                 <th>Typ</th>
-                                <th>Tempo</th>
+                                <th>Tempo/km</th>
                                 <th>Rychlost</th>
                             </tr>
                         </thead>
@@ -557,7 +557,7 @@
                         typeCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1').trim();
 
                         const paceCell = document.createElement('td');
-                        paceCell.textContent = paceData.pace + ' min/km';
+                        paceCell.textContent = paceData.pace;
 
                         const speedCell = document.createElement('td');
                         speedCell.textContent = paceData.speed + ' km/h';
