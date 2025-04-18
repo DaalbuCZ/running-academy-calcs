@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Převodník tempa/rychlosti - Running Academy</title>
+    <style>
+        body {
+            font-family: "League Gothic", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: white;
+            background-color: #121212;
+        }
+
+        /* Remove unused tab styles */
+
+        .input-section,
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #121212;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            color: white;
+            border-bottom: 2px solid #414141;
+            padding-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #121212;
+            color: white;
+        }
+
+        button {
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #d4b46c;
+        }
+
+        /* Table responsiveness */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            min-width: 300px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #121212;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .result-card {
+            border-radius: 5px;
+            padding: 0px;
+            background-color: #121212;
+            margin-bottom: 15px;
+        }
+
+        .unit-toggle {
+            margin-bottom: 15px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+
+        .back-button:hover {
+            background-color: #d4b46c;
+        }
+
+        .section-divider {
+            border-top: 2px solid #414141;
+            margin: 30px 0;
+        }
+
+        .calculator-section {
+            margin-bottom: 30px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            label {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .input-section>div {
+                margin-bottom: 15px;
+            }
+
+            input,
+            select {
+                max-width: 100%;
+            }
+
+            input[type="number"] {
+                width: 60px;
+            }
+
+            .time-inputs {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .result-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .back-button,
+            button {
+                display: block;
+                width: 92%;
+                text-align: center;
+            }
+        }
+
+        /* Add these styles to your existing <style> section */
+        .toggle-button {
+            background-color: transparent;
+            color: #c3931c;
+            border: 1px solid #c3931c;
+            text-align: left;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .toggle-button:hover {
+            background-color: rgba(195, 147, 28, 0.1);
+        }
+
+        #advanced-options {
+            border-left: 2px solid #c3931c;
+            padding-left: 15px;
+            margin-left: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Převodník tempa/rychlosti - Running Academy</h1>
+    <a href="https://www.runningacademy.cz/" class="back-button">« zpět</a>
+
+    <!-- Pace to Speed Calculator Section -->
+    <div class="calculator-section">
+        <div class="input-section">
+            <div>
+                <label for="pace-speed-type">Typ výpočtu:</label>
+                <select id="pace-speed-type">
+                    <option value="pace-to-speed">Tempo na rychlost</option>
+                    <option value="speed-to-pace">Rychlost na tempo</option>
+                </select>
+            </div>
+
+            <div id="pace-input-section">
+                <label for="pace-minutes">Tempo:</label>
+                <input type="number" id="pace-minutes" min="0" placeholder="Minuty"> :
+                <input type="number" id="pace-seconds" min="0" max="59" placeholder="Sekundy">
+
+                <input type="number" id="pace-distance" min="0.01" step="0.01" value="1" placeholder="Vzdálenost">
+                <select id="pace-distance-unit">
+                    <option value="km">km</option>
+                    <option value="m">m</option>
+                </select>
+            </div>
+
+            <div id="speed-input-section" class="hidden">
+                <label for="speed">Rychlost:</label>
+                <input type="number" id="speed" min="0.01" step="0.01" placeholder="Rychlost">
+                <select id="speed-unit">
+                    <option value="kmh">km/h</option>
+                    <option value="mph">mph</option>
+                </select>
+            </div>
+
+            <button id="calculate-pace-speed">Vypočítat</button>
+        </div>
+
+        <div id="pace-speed-results" class="result-section hidden">
+            <h3>Výsledek:</h3>
+            <p id="pace-speed-result-metric"></p>
+            <p id="pace-speed-result-imperial"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Restore state from localStorage on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const paceSpeedType = localStorage.getItem('paceSpeedType') || 'pace-to-speed';
+            document.getElementById('pace-speed-type').value = paceSpeedType;
+
+            const paceInputSection = document.getElementById('pace-input-section');
+            const speedInputSection = document.getElementById('speed-input-section');
+
+            if (paceSpeedType === 'pace-to-speed') {
+                paceInputSection.classList.remove('hidden');
+                speedInputSection.classList.add('hidden');
+            } else {
+                paceInputSection.classList.add('hidden');
+                speedInputSection.classList.remove('hidden');
+            }
+
+            document.getElementById('pace-minutes').value = localStorage.getItem('paceMinutes') || '';
+            document.getElementById('pace-seconds').value = localStorage.getItem('paceSeconds') || '';
+            document.getElementById('pace-distance-unit').value = localStorage.getItem('paceDistanceUnit') || 'km';
+            document.getElementById('pace-distance').value = localStorage.getItem('paceDistance') || '1';
+            document.getElementById('speed').value = localStorage.getItem('speed') || '';
+            document.getElementById('speed-unit').value = localStorage.getItem('speedUnit') || 'kmh'; // Restore speed unit
+        });
+
+        // Pace to Speed Calculator Logic
+        document.getElementById('pace-speed-type').addEventListener('change', function () {
+            const paceInputSection = document.getElementById('pace-input-section');
+            const speedInputSection = document.getElementById('speed-input-section');
+            const paceDistanceUnitSelect = document.getElementById('pace-distance-unit');
+            const speedUnitSelect = document.getElementById('speed-unit');
+
+            if (this.value === 'pace-to-speed') {
+                paceInputSection.classList.remove('hidden');
+                speedInputSection.classList.add('hidden');
+                // When switching to pace-to-speed, ensure pace unit matches speed unit preference if possible
+                const currentSpeedUnit = localStorage.getItem('speedUnit') || 'kmh';
+                paceDistanceUnitSelect.value = (currentSpeedUnit === 'kmh') ? 'km' : 'mile'; // Default to km or mile
+            } else {
+                paceInputSection.classList.add('hidden');
+                speedInputSection.classList.remove('hidden');
+                // When switching to speed-to-pace, ensure speed unit matches pace unit preference if possible
+                const currentPaceUnit = localStorage.getItem('paceDistanceUnit') || 'km';
+                speedUnitSelect.value = (currentPaceUnit === 'km') ? 'kmh' : 'mph';
+            }
+
+            localStorage.setItem('paceSpeedType', this.value);
+        });
+
+        // Update localStorage when units change
+        document.getElementById('pace-distance-unit').addEventListener('change', function () {
+            localStorage.setItem('paceDistanceUnit', this.value);
+            // Optionally sync the other unit selector
+            const speedUnitSelect = document.getElementById('speed-unit');
+            speedUnitSelect.value = (this.value === 'km' || this.value === 'm') ? 'kmh' : 'mph';
+            localStorage.setItem('speedUnit', speedUnitSelect.value);
+        });
+
+        document.getElementById('speed-unit').addEventListener('change', function () {
+            localStorage.setItem('speedUnit', this.value);
+            // Optionally sync the other unit selector
+            const paceDistanceUnitSelect = document.getElementById('pace-distance-unit');
+            paceDistanceUnitSelect.value = (this.value === 'kmh') ? 'km' : 'mile'; // Default to km or mile
+            localStorage.setItem('paceDistanceUnit', paceDistanceUnitSelect.value);
+        });
+
+
+        document.getElementById('calculate-pace-speed').addEventListener('click', function () {
+            const calculationType = document.getElementById('pace-speed-type').value;
+            const paceMinutes = parseFloat(document.getElementById('pace-minutes').value) || 0;
+            const paceSeconds = parseFloat(document.getElementById('pace-seconds').value) || 0;
+            const paceDistanceUnit = document.getElementById('pace-distance-unit').value;
+            const paceDistance = parseFloat(document.getElementById('pace-distance').value) || 1;
+            const speedInput = parseFloat(document.getElementById('speed').value) || 0;
+            const speedUnit = document.getElementById('speed-unit').value;
+
+            // Save inputs to localStorage
+            localStorage.setItem('paceMinutes', document.getElementById('pace-minutes').value);
+            localStorage.setItem('paceSeconds', document.getElementById('pace-seconds').value);
+            localStorage.setItem('paceDistanceUnit', paceDistanceUnit);
+            localStorage.setItem('paceDistance', document.getElementById('pace-distance').value);
+            localStorage.setItem('speed', document.getElementById('speed').value);
+            localStorage.setItem('speedUnit', speedUnit);
+
+            let resultTextMetric = '';
+            let resultTextImperial = '';
+            const kmToMiles = 0.621371;
+            const milesToKm = 1.60934;
+
+            if (calculationType === 'pace-to-speed') {
+                if (paceMinutes === 0 && paceSeconds === 0) {
+                    resultTextMetric = 'Zadejte prosím platné tempo.';
+                    resultTextImperial = '';
+                } else {
+                    let totalPaceSecondsPerKm = 0;
+                    let totalPaceSecondsPerMile = 0;
+
+                    let inputPaceSeconds = (paceMinutes * 60) + paceSeconds;
+
+                    if (paceDistanceUnit === 'm') {
+                        // Input is pace for X meters. Convert to pace/km and pace/mile.
+                        if (paceDistance <= 0) {
+                            resultTextMetric = 'Vzdálenost musí být kladná.';
+                            resultTextImperial = '';
+                        } else {
+                            totalPaceSecondsPerKm = inputPaceSeconds / (paceDistance / 1000);
+                            totalPaceSecondsPerMile = totalPaceSecondsPerKm * milesToKm;
+                        }
+                    } else if (paceDistanceUnit === 'mile') {
+                        // Input is pace for X miles. Convert to pace/mile and pace/km.
+                        if (paceDistance <= 0) {
+                            resultTextMetric = 'Vzdálenost musí být kladná.';
+                            resultTextImperial = '';
+                        } else {
+                            totalPaceSecondsPerMile = inputPaceSeconds / paceDistance;
+                            totalPaceSecondsPerKm = totalPaceSecondsPerMile / milesToKm;
+                        }
+                    } else { // km
+                        // Input is pace for X km. Convert to pace/km and pace/mile.
+                        if (paceDistance <= 0) {
+                            resultTextMetric = 'Vzdálenost musí být kladná.';
+                            resultTextImperial = '';
+                        } else {
+                            totalPaceSecondsPerKm = inputPaceSeconds / paceDistance;
+                            totalPaceSecondsPerMile = totalPaceSecondsPerKm * milesToKm;
+                        }
+                    }
+
+                    if (totalPaceSecondsPerKm > 0 && totalPaceSecondsPerMile > 0) {
+                        const speedKmh = 3600 / totalPaceSecondsPerKm;
+                        const speedMph = 3600 / totalPaceSecondsPerMile;
+                        resultTextMetric = `Rychlost: ${speedKmh.toFixed(2)} km/h`;
+                        resultTextImperial = `Rychlost: ${speedMph.toFixed(2)} mph`;
+                    } else if (!resultTextMetric) { // Only set error if not already set
+                        resultTextMetric = 'Tempo musí být kladné.';
+                        resultTextImperial = '';
+                    }
+                }
+            } else { // speed-to-pace
+                if (speedInput <= 0) {
+                    resultTextMetric = 'Zadejte prosím platnou rychlost (větší než 0).';
+                    resultTextImperial = '';
+                } else {
+                    let speedInKmh = speedInput;
+                    let speedInMph = speedInput;
+
+                    if (speedUnit === 'mph') {
+                        speedInKmh = speedInput * milesToKm;
+                    } else { // kmh
+                        speedInMph = speedInput * kmToMiles;
+                    }
+
+                    const totalPaceSecondsPerKm = 3600 / speedInKmh;
+                    const totalPaceSecondsPerMile = 3600 / speedInMph;
+
+                    // Calculate pace for 1 km
+                    const finalPaceMinutesKm = Math.floor(totalPaceSecondsPerKm / 60);
+                    const finalPaceRemainingSecondsKm = Math.round(totalPaceSecondsPerKm % 60);
+                    resultTextMetric = `Tempo: ${finalPaceMinutesKm}:${finalPaceRemainingSecondsKm < 10 ? '0' : ''}${finalPaceRemainingSecondsKm} min/km`;
+
+                    // Calculate pace for 1 mile
+                    const finalPaceMinutesMile = Math.floor(totalPaceSecondsPerMile / 60);
+                    const finalPaceRemainingSecondsMile = Math.round(totalPaceSecondsPerMile % 60);
+                    resultTextImperial = `Tempo: ${finalPaceMinutesMile}:${finalPaceRemainingSecondsMile < 10 ? '0' : ''}${finalPaceRemainingSecondsMile} min/míli`;
+                }
+            }
+
+            document.getElementById('pace-speed-result-metric').textContent = resultTextMetric;
+            document.getElementById('pace-speed-result-imperial').textContent = resultTextImperial;
+            document.getElementById('pace-speed-results').classList.remove('hidden');
+        });
+
+        // Add 'mile' option to pace distance unit
+        const paceDistUnitSelect = document.getElementById('pace-distance-unit');
+        if (!paceDistUnitSelect.querySelector('option[value="mile"]')) {
+            const mileOption = document.createElement('option');
+            mileOption.value = 'mile';
+            mileOption.textContent = 'míle';
+            paceDistUnitSelect.appendChild(mileOption);
+            // Restore potentially saved 'mile' preference
+            paceDistUnitSelect.value = localStorage.getItem('paceDistanceUnit') || 'km';
+        }
+
+    </script>
+</body>
+
+</html>

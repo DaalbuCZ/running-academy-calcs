@@ -86,21 +86,34 @@ class VDOTCalculator {
     this.equivalentDistances.forEach((distanceName) => {
       const distance = this.distanceMap[distanceName];
       const timeSeconds = this._predictTimeFromVDOT(vdot, distance);
+      const paceKmSeconds = timeSeconds / (distance / 1000);
+      const paceMileSeconds = timeSeconds / (distance / 1609.34);
 
       paces[distanceName] = {
         time: this._formatTime(timeSeconds),
-        paceKm: this._formatPace(timeSeconds / (distance / 1000)),
-        speedKmh: this._calculateSpeed(timeSeconds / (distance / 1000)),
+        paceKm: this._formatPace(paceKmSeconds),
+        speedKmh: this._calculateSpeedKmh(paceKmSeconds),
+        paceMile: this._formatPace(paceMileSeconds),
+        speedMph: this._calculateSpeedMph(paceMileSeconds),
       };
     });
 
-    // Add additional track distances
+    // Add additional track distances (pace only)
+    const pace800 = this._predictTimeFromVDOT(vdot, 800);
+    const pace400 = this._predictTimeFromVDOT(vdot, 400);
     paces["800m"] = {
-      pace: this._formatTime(this._predictTimeFromVDOT(vdot, 800)),
+      time: this._formatTime(pace800),
+      paceKm: this._formatPace(pace800 / 0.8), // Pace per km
+      speedKmh: this._calculateSpeedKmh(pace800 / 0.8),
+      paceMile: this._formatPace(pace800 / (800 / 1609.34)), // Pace per mile
+      speedMph: this._calculateSpeedMph(pace800 / (800 / 1609.34)),
     };
-
     paces["400m"] = {
-      pace: this._formatTime(this._predictTimeFromVDOT(vdot, 400)),
+      time: this._formatTime(pace400),
+      paceKm: this._formatPace(pace400 / 0.4), // Pace per km
+      speedKmh: this._calculateSpeedKmh(pace400 / 0.4),
+      paceMile: this._formatPace(pace400 / (400 / 1609.34)), // Pace per mile
+      speedMph: this._calculateSpeedMph(pace400 / (400 / 1609.34)),
     };
 
     return paces;
@@ -112,31 +125,33 @@ class VDOTCalculator {
    * @returns {Object} - Training paces for various types
    */
   calculateTrainingPaces(vdot) {
-    const paces = {
-      easy: {},
-      marathon: {},
-      threshold: {},
-      VO2max: {},
-      anaerobic: {},
-      speed: {},
-    };
+    const paces = {};
+    this.paceTypes.forEach((type) => (paces[type] = {})); // Initialize pace types
 
     // Adjust these values to more closely match Daniels' tables
     const paceAdjustments = {
-      easy: 0.71, // 71% of VDOT effort - unchanged
-      marathon: 0.85, // 85% of VDOT effort - increased for faster pace
-      threshold: 0.9, // 90% of VDOT effort - increased for faster pace
-      VO2max: 0.98, // 98% of VDOT effort - unchanged
-      anaerobic: 1.07, // 107% of VDOT - unchanged
-      speed: 1.12, // 112% of VDOT - unchanged
+      easy: 0.71,
+      marathon: 0.85,
+      threshold: 0.9,
+      VO2max: 0.98,
+      anaerobic: 1.07,
+      speed: 1.12,
     };
 
-    // Calculate kilometer paces
+    // Calculate kilometer and mile paces
     Object.keys(paceAdjustments).forEach((type) => {
       const adjustment = paceAdjustments[type];
       const kmPaceSeconds = this._calculatePaceFromVDOT(vdot, 1000, adjustment);
+      const milePaceSeconds = this._calculatePaceFromVDOT(
+        vdot,
+        1609.34,
+        adjustment
+      );
+
       paces[type]["km"] = this._formatPace(kmPaceSeconds);
-      paces[type]["speedKmh"] = this._calculateSpeed(kmPaceSeconds);
+      paces[type]["speedKmh"] = this._calculateSpeedKmh(kmPaceSeconds);
+      paces[type]["mile"] = this._formatPace(milePaceSeconds);
+      paces[type]["speedMph"] = this._calculateSpeedMph(milePaceSeconds);
     });
 
     return paces;
@@ -153,12 +168,15 @@ class VDOTCalculator {
     this.equivalentDistances.forEach((distanceName) => {
       const distance = this.distanceMap[distanceName];
       const timeSeconds = this._predictTimeFromVDOT(vdot, distance);
-      const paceSeconds = timeSeconds / (distance / 1000);
+      const paceKmSeconds = timeSeconds / (distance / 1000);
+      const paceMileSeconds = timeSeconds / (distance / 1609.34);
 
       performances[distanceName] = {
         time: this._formatTime(timeSeconds),
-        paceKm: this._formatPace(paceSeconds),
-        speedKmh: this._calculateSpeed(paceSeconds),
+        paceKm: this._formatPace(paceKmSeconds),
+        speedKmh: this._calculateSpeedKmh(paceKmSeconds),
+        paceMile: this._formatPace(paceMileSeconds),
+        speedMph: this._calculateSpeedMph(paceMileSeconds),
       };
     });
 
@@ -282,7 +300,18 @@ class VDOTCalculator {
    * @param {number} paceSeconds - Pace in seconds per kilometer
    * @returns {string} - Speed in km/h
    */
-  _calculateSpeed(paceSeconds) {
+  _calculateSpeedKmh(paceSeconds) {
+    if (paceSeconds <= 0) return "0.0";
+    return (3600 / paceSeconds).toFixed(1);
+  }
+
+  /**
+   * Calculate speed in mph from pace in seconds per mile
+   * @param {number} paceSeconds - Pace in seconds per mile
+   * @returns {string} - Speed in mph
+   */
+  _calculateSpeedMph(paceSeconds) {
+    if (paceSeconds <= 0) return "0.0";
     return (3600 / paceSeconds).toFixed(1);
   }
 

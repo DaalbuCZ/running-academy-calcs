@@ -22,44 +22,47 @@ function calculatePaceFactor(value) {
 }
 
 /**
- * Converts pace to speed
- * @param {number} paceValue - The pace value in min/km
+ * Converts pace to speed in km/h
+ * @param {number} paceValue - The pace value in seconds per km
  * @returns {number} The speed in km/h
  */
-function paceToSpeed(paceValue) {
-  return (60 / paceValue).toFixed(1);
+function paceToSpeedKmh(paceValue) {
+  if (paceValue <= 0) return "0.0";
+  return (3600 / paceValue).toFixed(1);
 }
 
 /**
- * Formats a pace value to minutes:seconds format
- * @param {number} paceValue - The pace value
- * @returns {Object} The formatted pace and speed
+ * Converts pace to speed in mph
+ * @param {number} paceValue - The pace value in seconds per mile
+ * @returns {number} The speed in mph
  */
-function formatPace(paceValue) {
-  const pace = (1 / paceValue) * 1000;
-  const minutes = Math.floor(pace);
-  const seconds = Math.floor(60 * (pace - minutes));
-  const speed = paceToSpeed(pace);
+function paceToSpeedMph(paceValue) {
+  if (paceValue <= 0) return "0.0";
+  return (3600 / paceValue).toFixed(1);
+}
+
+/**
+ * Formats a pace value to minutes:seconds format for both km and miles
+ * @param {number} paceValueKm - The pace value in seconds per km
+ * @returns {Object} The formatted pace and speed for km and miles
+ */
+function formatPace(paceValueKm) {
+  const paceKm = paceValueKm;
+  const minutesKm = Math.floor(paceKm / 60);
+  const secondsKm = Math.floor(paceKm % 60);
+  const speedKmh = paceToSpeedKmh(paceKm);
+
+  const paceMile = paceKm * 1.60934; // Convert pace from sec/km to sec/mile
+  const minutesMile = Math.floor(paceMile / 60);
+  const secondsMile = Math.floor(paceMile % 60);
+  const speedMph = paceToSpeedMph(paceMile);
+
   return {
-    pace: `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
-    speed: `${speed}`,
+    paceKm: `${minutesKm}:${secondsKm < 10 ? "0" : ""}${secondsKm}`,
+    speedKmh: `${speedKmh}`,
+    paceMile: `${minutesMile}:${secondsMile < 10 ? "0" : ""}${secondsMile}`,
+    speedMph: `${speedMph}`,
   };
-}
-
-/**
- * Formats a Yasso800 pace value
- * @param {number} paceFactor - The pace factor
- * @returns {string} The formatted Yasso800 pace (e.g., "3:45")
- */
-function formatYasso800(paceFactor) {
-  // Multiply by 1.95 as in the original implementation
-  const adjustedPaceFactor = 1.95 * paceFactor;
-
-  // Use miles (1609m) for calculation
-  const pace = (1 / adjustedPaceFactor) * 1609;
-  const minutes = Math.floor(pace);
-  const seconds = Math.floor(60 * (pace - minutes));
-  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 }
 
 /**
@@ -84,17 +87,24 @@ function calculateVO2Max(distanceMeters, timeMinutes) {
  * @returns {Object} Object containing various training paces
  */
 function calculateTrainingPaces(vo2max) {
-  const easyPaceFactor = calculatePaceFactor(0.7 * vo2max);
-  const vo2maxPaceFactor = calculatePaceFactor(vo2max);
+  const easyPaceFactorKm = calculatePaceFactor(0.7 * vo2max); // Factor for km pace
+  const vo2maxPaceFactorKm = calculatePaceFactor(vo2max); // Factor for km pace
+
+  // Calculate pace values in seconds per km
+  // Corrected formula: pace (sec/km) = 60000 / speed (m/min)
+  const easyPaceKm = 60000 / easyPaceFactorKm;
+  const thresholdPaceKm = 60000 / calculatePaceFactor(0.88 * vo2max);
+  const vo2maxPaceKm = 60000 / vo2maxPaceFactorKm;
+  const anaerobicPaceKm = 60000 / calculatePaceFactor(1.1 * vo2max);
+  const longRunUpperPaceKm = 60000 / calculatePaceFactor(0.6 * vo2max);
 
   return {
-    easy: formatPace(easyPaceFactor),
-    threshold: formatPace(calculatePaceFactor(0.88 * vo2max)),
-    vo2max: formatPace(vo2maxPaceFactor),
-    anaerobic: formatPace(calculatePaceFactor(1.1 * vo2max)),
-    longRunLower: formatPace(easyPaceFactor),
-    longRunUpper: formatPace(calculatePaceFactor(0.6 * vo2max)),
-    yasso800: formatYasso800(vo2maxPaceFactor),
+    easy: formatPace(easyPaceKm),
+    threshold: formatPace(thresholdPaceKm),
+    vo2max: formatPace(vo2maxPaceKm),
+    anaerobic: formatPace(anaerobicPaceKm),
+    longRunLower: formatPace(easyPaceKm), // Lower bound is the easy pace
+    longRunUpper: formatPace(longRunUpperPaceKm),
   };
 }
 
@@ -145,8 +155,8 @@ function calculatePaces(raceDistance, hours, minutes, seconds) {
 export {
   isValidInput,
   calculatePaceFactor,
-  formatPace,
+  formatPace, // Updated formatPace
   calculateVO2Max,
-  calculateTrainingPaces,
+  calculateTrainingPaces, // Updated calculateTrainingPaces
   calculatePaces,
 };

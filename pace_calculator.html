@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDOT & Pace Kalkulačka - Running Academy</title>
+    <style>
+        body {
+            font-family: "League Gothic", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: white;
+            background-color: #121212;
+        }
+
+        /* Remove unused tab styles */
+
+        .input-section,
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #121212;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            color: white;
+            border-bottom: 2px solid #414141;
+            padding-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #121212;
+            color: white;
+        }
+
+        button {
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #d4b46c;
+        }
+
+        /* Table responsiveness */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            min-width: 300px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #121212;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .result-card {
+            border-radius: 5px;
+            padding: 0px;
+            background-color: #121212;
+            margin-bottom: 15px;
+        }
+
+        .unit-toggle {
+            margin-bottom: 15px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+
+        .back-button:hover {
+            background-color: #d4b46c;
+        }
+
+        .section-divider {
+            border-top: 2px solid #414141;
+            margin: 30px 0;
+        }
+
+        .calculator-section {
+            margin-bottom: 30px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            label {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .input-section>div {
+                margin-bottom: 15px;
+            }
+
+            input,
+            select {
+                max-width: 100%;
+            }
+
+            input[type="number"] {
+                width: 60px;
+            }
+
+            .time-inputs {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .result-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .back-button,
+            button {
+                display: block;
+                width: 92%;
+                text-align: center;
+            }
+        }
+
+        /* Add these styles to your existing <style> section */
+        .toggle-button {
+            background-color: transparent;
+            color: #c3931c;
+            border: 1px solid #c3931c;
+            text-align: left;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .toggle-button:hover {
+            background-color: rgba(195, 147, 28, 0.1);
+        }
+
+        #advanced-options {
+            border-left: 2px solid #c3931c;
+            padding-left: 15px;
+            margin-left: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>VDOT & Pace Kalkulačka - Running Academy</h1>
+    <a href="https://www.runningacademy.cz/" class="back-button">« zpět</a>
+
+    <div class="calculator-section">
+        <div class="input-section">
+            <div>
+                <label for="distance-type">Závodní vzdálenost:</label>
+                <select id="distance-type">
+                    <option value="5k">5K</option>
+                    <option value="10k">10K</option>
+                    <option value="half-marathon">Půlmaraton</option>
+                    <option value="marathon">Maraton</option>
+                    <option value="custom">Vlastní</option>
+                </select>
+
+                <div id="custom-distance" class="hidden">
+                    <label for="custom-distance-value">Vlastní vzdálenost:</label>
+                    <input type="number" id="custom-distance-value" min="0.1" step="0.01">
+                    <select id="custom-distance-unit">
+                        <option value="km">km</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label>Čas:</label>
+                <div class="time-inputs">
+                    <input type="number" id="hours" min="0" max="99" placeholder="HH" style="width: 60px;">
+                    <input type="number" id="minutes" min="0" max="59" placeholder="MM" style="width: 60px;">
+                    <input type="number" id="seconds" min="0" max="59" placeholder="SS" style="width: 60px;">
+                </div>
+            </div>
+
+            <!-- Add Advanced Options toggle button -->
+            <div>
+                <button type="button" id="advanced-options-toggle" class="toggle-button">
+                    Pokročilé možnosti ▼
+                </button>
+            </div>
+
+            <!-- Advanced options container -->
+            <div id="advanced-options" class="hidden">
+                <div>
+                    <label for="temperature">Teplota:</label>
+                    <input type="number" id="temperature" min="-50" max="50" step="0.1">
+                    <select id="temperature-unit">
+                        <option value="C">°C</option>
+                        <option value="F">°F</option>
+                    </select>
+                    <small>(volitelné)</small>
+                </div>
+
+                <div>
+                    <label for="altitude">Nadmořská výška:</label>
+                    <input type="number" id="altitude" min="0" step="1">
+                    <label for="altitude-unit" style="width: auto;">metrů</label>
+                    <small>(volitelné)</small>
+                </div>
+            </div>
+
+            <button id="calculate-all">Vypočítat</button>
+        </div>
+
+        <!-- Unit Toggle for Results -->
+        <div class="unit-toggle">
+            <label>Zobrazit výsledky v:</label>
+            <input type="radio" id="unit-km" name="result-unit" value="km" checked>
+            <label for="unit-km" style="width: auto; margin-right: 10px;">min/km, km/h</label>
+            <input type="radio" id="unit-mile" name="result-unit" value="mile">
+            <label for="unit-mile" style="width: auto;">min/míle, mph</label>
+        </div>
+
+        <!-- VDOT Results Section -->
+        <div id="vdot-results" class="result-section hidden">
+            <h3>Odhad vašeho VO2max: <span id="vdot-score"></span></h3>
+
+            <div class="result-grid">
+                <div class="result-card">
+                    <h4>Tréninková tempa - hobby</h4>
+                    <div class="table-container">
+                        <table id="vdot-training-paces">
+                            <thead>
+                                <tr>
+                                    <th>Typ</th>
+                                    <th class="pace-header">Tempo</th>
+                                    <th class="speed-header">Rychlost</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>Ekvivalentní závodní výkony</h4>
+                    <div class="table-container">
+                        <table id="vdot-equivalent-performances">
+                            <thead>
+                                <tr>
+                                    <th>Vzdálenost</th>
+                                    <th>Čas</th>
+                                    <th class="pace-header">Tempo</th>
+                                    <th class="speed-header">Rychlost</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pace Results Section -->
+        <div id="pace-results" class="result-section hidden">
+            <h3>Tréninková tempa - pokročilý</h3>
+
+            <div class="result-card">
+                <div class="table-container">
+                    <table id="pace-training-paces">
+                        <thead>
+                            <tr>
+                                <th>Typ</th>
+                                <th class="pace-header">Tempo</th>
+                                <th class="speed-header">Rychlost</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden pace descriptions -->
+    <div id="pace-descriptions" class="hidden"></div>
+
+    <script type="module">
+        import { calculatePaces } from './paceCalculator.js';
+        import { VDOTCalculator } from './vdot.js';
+
+        // Initialize VDOT Calculator
+        const vdotCalculator = new VDOTCalculator();
+
+        // --- Unit Toggle Logic ---
+        let displayUnit = localStorage.getItem('displayUnit') || 'km'; // Default to km
+
+        function setDisplayUnit(unit) {
+            displayUnit = unit;
+            localStorage.setItem('displayUnit', unit);
+            updateTableHeaders(unit);
+            // Re-render tables if results are already visible
+            if (!document.getElementById('vdot-results').classList.contains('hidden')) {
+                document.getElementById('calculate-all').click(); // Re-calculate to update display
+            }
+        }
+
+        function updateTableHeaders(unit) {
+            const paceHeaders = document.querySelectorAll('.pace-header');
+            const speedHeaders = document.querySelectorAll('.speed-header');
+            if (unit === 'km') {
+                paceHeaders.forEach(th => th.textContent = 'Tempo/km');
+                speedHeaders.forEach(th => th.textContent = 'Rychlost (km/h)');
+            } else {
+                paceHeaders.forEach(th => th.textContent = 'Tempo/míle');
+                speedHeaders.forEach(th => th.textContent = 'Rychlost (mph)');
+            }
+        }
+
+        document.querySelectorAll('input[name="result-unit"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                setDisplayUnit(this.value);
+            });
+        });
+        // --- End Unit Toggle Logic ---
+
+        // Add toggle functionality for advanced options
+        document.getElementById('advanced-options-toggle').addEventListener('click', function () {
+            const advancedOptions = document.getElementById('advanced-options');
+            const isHidden = advancedOptions.classList.contains('hidden');
+
+            if (isHidden) {
+                advancedOptions.classList.remove('hidden');
+                this.textContent = 'Pokročilé možnosti ▲';
+            } else {
+                advancedOptions.classList.add('hidden');
+                this.textContent = 'Pokročilé možnosti ▼';
+            }
+        });
+
+        // Unified Calculator Event Listeners
+        document.getElementById('distance-type').addEventListener('change', function () {
+            const customDistanceField = document.getElementById('custom-distance');
+            if (this.value === 'custom') {
+                customDistanceField.classList.remove('hidden');
+            } else {
+                customDistanceField.classList.add('hidden');
+            }
+            localStorage.setItem('distanceType', this.value);
+        });
+
+        document.getElementById('calculate-all').addEventListener('click', function () {
+            // Get input values
+            const distanceType = document.getElementById('distance-type').value;
+            localStorage.setItem('distanceType', distanceType);
+            if (distanceType === 'custom') {
+                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const distanceUnit = document.getElementById('custom-distance-unit').value;
+                localStorage.setItem('customDistanceValue', distanceValue);
+                localStorage.setItem('customDistanceUnit', distanceUnit);
+            }
+            let distanceMeters, distanceKm;
+
+            if (distanceType === 'custom') {
+                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const distanceUnit = document.getElementById('custom-distance-unit').value;
+
+                if (distanceUnit === 'km') {
+                    distanceMeters = distanceValue * 1000;
+                    distanceKm = distanceValue;
+                } else if (distanceUnit === 'm') {
+                    distanceMeters = distanceValue;
+                    distanceKm = distanceValue / 1000;
+                }
+            } else {
+                // Get standard distance in meters
+                distanceMeters = vdotCalculator.distanceMap[distanceType];
+                distanceKm = distanceMeters / 1000;
+            }
+
+            // Get time from separate hour, minute, second inputs
+            const hours = parseInt(document.getElementById('hours').value || 0);
+            const minutes = parseInt(document.getElementById('minutes').value || 0);
+            const seconds = parseInt(document.getElementById('seconds').value || 0);
+
+            // Format time string in the format expected by the calculator
+            const timeStr = hours > 0
+                ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                : `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const temperature = document.getElementById('temperature').value ?
+                parseFloat(document.getElementById('temperature').value) : null;
+            const temperatureUnit = document.getElementById('temperature-unit').value;
+            const altitude = document.getElementById('altitude').value ?
+                parseFloat(document.getElementById('altitude').value) : null;
+            const altitudeUnit = "m"; // Always use meters
+
+            // Validate time inputs
+            if (isNaN(hours) || isNaN(minutes) || isNaN(seconds) ||
+                (hours === 0 && minutes === 0 && seconds === 0)) {
+                alert('Zadejte prosím platný čas');
+                return;
+            }
+
+            // Calculate VDOT results
+            const vdotResults = vdotCalculator.calculate({
+                distance: distanceMeters,
+                time: timeStr,
+                temperature: temperature,
+                altitude: altitude,
+                temperatureUnit: temperatureUnit,
+                altitudeUnit: altitudeUnit // Should always be 'm' based on input field
+            });
+
+            // Calculate pace results (now returns both km and mile paces/speeds)
+            const paceResults = calculatePaces(distanceKm, hours, minutes, seconds);
+
+            // Display VDOT results
+            document.getElementById('vdot-score').textContent = vdotResults.vdot;
+
+            // --- Update Display Logic based on displayUnit ---
+            const useMiles = displayUnit === 'mile';
+
+            // Fill Training Paces table (VDOT - Hobby)
+            const trainingPacesTable = document.getElementById('vdot-training-paces').getElementsByTagName('tbody')[0];
+            trainingPacesTable.innerHTML = ''; // Clear previous results
+            for (const type of vdotCalculator.paceTypes) {
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                nameCell.textContent = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ');
+
+                const paceCell = document.createElement('td');
+                const speedCell = document.createElement('td');
+
+                const paceData = vdotResults.trainingPaces[type];
+                if (useMiles) {
+                    paceCell.textContent = paceData.mile;
+                    speedCell.textContent = paceData.speedMph + ' mph';
+                } else {
+                    paceCell.textContent = paceData.km;
+                    speedCell.textContent = paceData.speedKmh + ' km/h';
+                }
+
+                row.appendChild(nameCell);
+                row.appendChild(paceCell);
+                row.appendChild(speedCell);
+                trainingPacesTable.appendChild(row);
+            }
+
+            // Fill Equivalent Performances table
+            const performancesTable = document.getElementById('vdot-equivalent-performances').getElementsByTagName('tbody')[0];
+            performancesTable.innerHTML = ''; // Clear previous results
+
+            for (const distance of vdotCalculator.equivalentDistances) {
+                const performance = vdotResults.equivalentPerformances[distance];
+                const row = document.createElement('tr');
+
+                const distanceCell = document.createElement('td');
+                distanceCell.textContent = distance; // Keep distance name as is (e.g., "5k", "half-marathon")
+
+                const timeCell = document.createElement('td');
+                timeCell.textContent = performance.time;
+
+                const paceCell = document.createElement('td');
+                const speedCell = document.createElement('td');
+
+                if (useMiles) {
+                    paceCell.textContent = performance.paceMile;
+                    speedCell.textContent = performance.speedMph + ' mph';
+                } else {
+                    paceCell.textContent = performance.paceKm;
+                    speedCell.textContent = performance.speedKmh + ' km/h';
+                }
+
+                row.appendChild(distanceCell);
+                row.appendChild(timeCell);
+                row.appendChild(paceCell);
+                row.appendChild(speedCell);
+                performancesTable.appendChild(row);
+            }
+
+            // Show VDOT results
+            document.getElementById('vdot-results').classList.remove('hidden');
+
+            // Display pace results (Advanced) if available
+            if (paceResults) {
+                const pacesTable = document.getElementById('pace-training-paces').getElementsByTagName('tbody')[0];
+                pacesTable.innerHTML = ''; // Clear previous results
+
+                // Define the order and display names
+                const paceOrder = ['easy', 'marathon', 'threshold', 'vo2max', 'anaerobic', 'longRunUpper']; // Exclude yasso800 and longRunLower for now
+                const paceDisplayNames = {
+                    easy: 'Easy',
+                    marathon: 'Marathon',
+                    threshold: 'Threshold',
+                    vo2max: 'VO2 Max',
+                    anaerobic: 'Anaerobic',
+                    longRunUpper: 'Long Run (Upper)' // Display upper bound of long run pace
+                };
+
+                for (const type of paceOrder) {
+                    if (paceResults[type]) {
+                        const paceData = paceResults[type];
+                        const row = document.createElement('tr');
+
+                        const typeCell = document.createElement('td');
+                        typeCell.textContent = paceDisplayNames[type] || type; // Use display name or fallback to key
+
+                        const paceCell = document.createElement('td');
+                        const speedCell = document.createElement('td');
+
+                        if (useMiles) {
+                            paceCell.textContent = paceData.paceMile;
+                            speedCell.textContent = paceData.speedMph + ' mph';
+                        } else {
+                            paceCell.textContent = paceData.paceKm;
+                            speedCell.textContent = paceData.speedKmh + ' km/h';
+                        }
+
+                        row.appendChild(typeCell);
+                        row.appendChild(paceCell);
+                        row.appendChild(speedCell);
+                        pacesTable.appendChild(row);
+                    }
+                }
+
+                // --- Calculate and Add Yasso 800 based on predicted Marathon Time --- 
+                const marathonPerformance = vdotResults.equivalentPerformances.marathon;
+                if (marathonPerformance && marathonPerformance.time) {
+                    const timeParts = marathonPerformance.time.split(':');
+                    let yassoMinutes = 0;
+                    let yassoSeconds = 0;
+
+                    if (timeParts.length === 3) { // H:MM:SS
+                        yassoMinutes = parseInt(timeParts[0]); // Hours become minutes
+                        yassoSeconds = parseInt(timeParts[1]); // Minutes become seconds
+                    } else if (timeParts.length === 2) { // MM:SS (for faster marathon times)
+                        yassoMinutes = 0;
+                        yassoSeconds = parseInt(timeParts[0]); // Minutes become seconds
+                    }
+
+                    const yassoTimeFormatted = `${yassoMinutes}:${yassoSeconds < 10 ? '0' : ''}${yassoSeconds}`;
+
+                    const row = document.createElement('tr');
+
+                    const typeCell = document.createElement('td');
+                    typeCell.textContent = 'Yasso 800m';
+
+                    const paceCell = document.createElement('td');
+                    paceCell.textContent = yassoTimeFormatted; // Yasso pace is M:SS for 800m
+
+                    const speedCell = document.createElement('td');
+                    // Calculate speed for Yasso 800m (can show both)
+                    const paceTimeSec = (yassoMinutes * 60) + yassoSeconds;
+                    if (paceTimeSec > 0) {
+                        const speedKmh = (0.8 / (paceTimeSec / 3600)).toFixed(1); // Speed = Distance/Time
+                        const speedMph = (0.497 / (paceTimeSec / 3600)).toFixed(1); // 800m is approx 0.497 miles
+                        speedCell.textContent = useMiles ? `${speedMph} mph` : `${speedKmh} km/h`;
+                    } else {
+                        speedCell.textContent = '-'; // Cannot calculate speed if time is 0
+                    }
+
+                    row.appendChild(typeCell);
+                    row.appendChild(paceCell);
+                    row.appendChild(speedCell);
+                    pacesTable.appendChild(row);
+                }
+                // --- End Yasso 800 Calculation ---
+
+                document.getElementById('pace-results').classList.remove('hidden');
+            }
+            // --- End Update Display Logic ---
+        });
+
+        // Add additional description for the pace types
+        document.addEventListener('DOMContentLoaded', function () {
+            const paceDescriptions = {
+                easy: "Regenerační běhy a lehký aerobní trénink",
+                marathon: "Trénink v maratonském tempu",
+                threshold: "Tempové běhy (příjemně náročné)",
+                VO2max: "VO₂max intervaly (těžké úsilí)",
+                anaerobic: "Opakování pro rychlost (velmi těžké)",
+                "speed": "Sprintový trénink (maximální úsilí)"
+            };
+
+            // Create a hidden div with pace descriptions for tooltip/reference
+            const descDiv = document.getElementById('pace-descriptions');
+
+            for (const [type, desc] of Object.entries(paceDescriptions)) {
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}:</strong> ${desc}`;
+                descDiv.appendChild(p);
+            }
+
+            // Restore state from localStorage
+            const distanceType = localStorage.getItem('distanceType') || '5k';
+            document.getElementById('distance-type').value = distanceType;
+
+            const customDistanceField = document.getElementById('custom-distance');
+            if (distanceType === 'custom') {
+                customDistanceField.classList.remove('hidden');
+                document.getElementById('custom-distance-value').value = localStorage.getItem('customDistanceValue') || '';
+                document.getElementById('custom-distance-unit').value = localStorage.getItem('customDistanceUnit') || 'km';
+            } else {
+                customDistanceField.classList.add('hidden');
+            }
+
+            // Restore unit toggle state
+            const savedUnit = localStorage.getItem('displayUnit') || 'km';
+            document.getElementById(`unit-${savedUnit}`).checked = true;
+            setDisplayUnit(savedUnit); // Apply the restored unit setting
+
+            // Restore time inputs (optional, might be better to start fresh)
+            // document.getElementById('hours').value = localStorage.getItem('hours') || '';
+            // document.getElementById('minutes').value = localStorage.getItem('minutes') || '';
+            // document.getElementById('seconds').value = localStorage.getItem('seconds') || '';
+
+            // Add 'mile' option to custom distance unit if not present
+            const customDistUnitSelect = document.getElementById('custom-distance-unit');
+            if (!customDistUnitSelect.querySelector('option[value="mile"]')) {
+                const mileOption = document.createElement('option');
+                mileOption.value = 'mile';
+                mileOption.textContent = 'míle';
+                customDistUnitSelect.appendChild(mileOption);
+                // Restore potentially saved 'mile' preference
+                customDistUnitSelect.value = localStorage.getItem('customDistanceUnit') || 'km';
+            }
+        });
+    </script>
+</body>
+
+</html>
