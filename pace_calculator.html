@@ -309,6 +309,10 @@
         <!-- VDOT Results Section -->
         <div id="vdot-results" class="result-section hidden">
             <h3>Odhad vašeho VO2max: <span id="vdot-score"></span></h3>
+            <!-- Add elements to display input pace and speed -->
+            <p><strong>Tempo (<span class="input-pace-unit-label">km</span>):</strong> <span id="input-pace"></span></p>
+            <p><strong>Rychlost (<span class="input-speed-unit-label">km/h</span>):</strong> <span
+                    id="input-speed"></span></p>
 
             <div class="result-grid">
                 <div class="result-card">
@@ -384,6 +388,7 @@
             displayUnit = unit;
             localStorage.setItem('displayUnit', unit);
             updateTableHeaders(unit);
+            updateUnitLabels(unit); // Add this line
             // Re-render tables if results are already visible
             if (!document.getElementById('vdot-results').classList.contains('hidden')) {
                 document.getElementById('calculate-all').click(); // Re-calculate to update display
@@ -399,6 +404,27 @@
             } else {
                 paceHeaders.forEach(th => th.textContent = 'Tempo/míle');
                 speedHeaders.forEach(th => th.textContent = 'Rychlost (mph)');
+            }
+        }
+
+        // Function to update unit labels below VDOT score
+        function updateUnitLabels(unit) {
+            const paceUnitLabels = document.querySelectorAll('.pace-unit-label');
+            const speedUnitLabels = document.querySelectorAll('.speed-unit-label');
+            // Update labels for input pace/speed
+            const inputPaceUnitLabels = document.querySelectorAll('.input-pace-unit-label');
+            const inputSpeedUnitLabels = document.querySelectorAll('.input-speed-unit-label');
+
+            if (unit === 'km') {
+                paceUnitLabels.forEach(span => span.textContent = 'km');
+                speedUnitLabels.forEach(span => span.textContent = 'km/h');
+                inputPaceUnitLabels.forEach(span => span.textContent = 'km');
+                inputSpeedUnitLabels.forEach(span => span.textContent = 'km/h');
+            } else {
+                paceUnitLabels.forEach(span => span.textContent = 'míle');
+                speedUnitLabels.forEach(span => span.textContent = 'mph');
+                inputPaceUnitLabels.forEach(span => span.textContent = 'míle');
+                inputSpeedUnitLabels.forEach(span => span.textContent = 'mph');
             }
         }
 
@@ -487,6 +513,9 @@
                 return;
             }
 
+            // Calculate total time in seconds for direct pace/speed calculation
+            const totalTimeSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
             // Calculate VDOT results
             const vdotResults = vdotCalculator.calculate({
                 distance: distanceMeters,
@@ -505,6 +534,35 @@
 
             // --- Update Display Logic based on displayUnit ---
             const useMiles = displayUnit === 'mile';
+
+            // --- Calculate and Display Input Pace and Speed ---
+            const inputPaceElement = document.getElementById('input-pace');
+            const inputSpeedElement = document.getElementById('input-speed');
+            if (distanceMeters > 0 && totalTimeSeconds > 0) {
+                const paceKmSeconds = totalTimeSeconds / (distanceMeters / 1000);
+                const paceMileSeconds = totalTimeSeconds / (distanceMeters / 1609.34);
+                const speedKmh = 3600 / paceKmSeconds;
+                const speedMph = 3600 / paceMileSeconds;
+
+                // Format pace function (borrowed from vdot.js or create a local one)
+                const formatPace = (secs) => {
+                    const minutes = Math.floor(secs / 60);
+                    const remainingSeconds = Math.floor(secs % 60);
+                    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                };
+
+                if (useMiles) {
+                    inputPaceElement.textContent = formatPace(paceMileSeconds);
+                    inputSpeedElement.textContent = speedMph.toFixed(1);
+                } else {
+                    inputPaceElement.textContent = formatPace(paceKmSeconds);
+                    inputSpeedElement.textContent = speedKmh.toFixed(1);
+                }
+            } else {
+                inputPaceElement.textContent = '-';
+                inputSpeedElement.textContent = '-';
+            }
+            // --- End Input Pace and Speed ---
 
             // Fill Training Paces table (VDOT - Hobby)
             const trainingPacesTable = document.getElementById('vdot-training-paces').getElementsByTagName('tbody')[0];
@@ -690,10 +748,10 @@
                 customDistanceField.classList.add('hidden');
             }
 
-            // Restore unit toggle state
+            // Restore unit toggle state and labels
             const savedUnit = localStorage.getItem('displayUnit') || 'km';
             document.getElementById(`unit-${savedUnit}`).checked = true;
-            setDisplayUnit(savedUnit); // Apply the restored unit setting
+            setDisplayUnit(savedUnit); // Apply the restored unit setting and update labels
 
             // Restore time inputs (optional, might be better to start fresh)
             // document.getElementById('hours').value = localStorage.getItem('hours') || '';
