@@ -146,18 +146,37 @@
 
     <div class="input-section">
         <h2>Vstupní údaje</h2>
-        <div>
-            <label for="age">Věk:</label>
-            <input type="number" id="age" min="1" max="120" required>
+
+        <div class="radio-group" style="margin-bottom: 20px;">
+            <label>Metoda zadání HRmax:</label>
+            <input type="radio" id="calc-from-age" name="hr-method" value="calculate" checked>
+            <label for="calc-from-age">Vypočítat z věku</label>
+            <input type="radio" id="enter-manually" name="hr-method" value="manual">
+            <label for="enter-manually">Zadat ručně</label>
         </div>
 
-        <div class="radio-group">
-            <label>Pohlaví:</label>
-            <input type="radio" id="male" name="gender" value="male" checked>
-            <label for="male">Muž</label>
-            <input type="radio" id="female" name="gender" value="female">
-            <label for="female">Žena</label>
+        <div id="age-gender-inputs">
+            <div>
+                <label for="age">Věk:</label>
+                <input type="number" id="age" min="1" max="120">
+            </div>
+
+            <div class="radio-group">
+                <label>Pohlaví:</label>
+                <input type="radio" id="male" name="gender" value="male" checked>
+                <label for="male">Muž</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female">Žena</label>
+            </div>
         </div>
+
+        <div id="manual-hr-input" class="hidden">
+            <div>
+                <label for="manual-hr-max">Maximální tepová frekvence (HRmax):</label>
+                <input type="number" id="manual-hr-max" min="50" max="250">
+            </div>
+        </div>
+
 
         <div class="radio-group" style="margin-top: 15px;">
             <label>Trénovanost:</label>
@@ -178,28 +197,71 @@
     </div>
 
     <script>
+        const ageGenderInputs = document.getElementById('age-gender-inputs');
+        const manualHrInput = document.getElementById('manual-hr-input');
+        const hrMethodRadios = document.querySelectorAll('input[name="hr-method"]');
+        const ageInput = document.getElementById('age');
+        const manualHrMaxInput = document.getElementById('manual-hr-max');
+
+        // Function to toggle input visibility
+        function toggleHrInputMethod() {
+            const selectedMethod = document.querySelector('input[name="hr-method"]:checked').value;
+            if (selectedMethod === 'calculate') {
+                ageGenderInputs.classList.remove('hidden');
+                manualHrInput.classList.add('hidden');
+            } else { // manual
+                ageGenderInputs.classList.add('hidden');
+                manualHrInput.classList.remove('hidden');
+            }
+            localStorage.setItem('hr_method', selectedMethod);
+        }
+
+        // Add event listeners to radio buttons
+        hrMethodRadios.forEach(radio => {
+            radio.addEventListener('change', toggleHrInputMethod);
+        });
+
+
         document.getElementById('calculate-hr').addEventListener('click', function () {
-            const ageInput = document.getElementById('age');
-            const age = parseInt(ageInput.value);
-            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const selectedMethod = document.querySelector('input[name="hr-method"]:checked').value;
             const level = document.querySelector('input[name="level"]:checked').value;
-
-            if (!age || age <= 0) {
-                alert('Zadejte prosím platný věk.');
-                ageInput.focus();
-                return;
-            }
-
-            // 1. Calculate HRmax
             let hrMax;
-            if (gender === 'male') {
-                hrMax = 211 - (0.64 * age);
-            } else { // female
-                hrMax = 206 - (0.88 * age);
-            }
-            hrMax = Math.round(hrMax); // Round to nearest whole number
 
-            // 2. Calculate Thresholds
+            // 1. Determine HRmax based on selected method
+            if (selectedMethod === 'calculate') {
+                const age = parseInt(ageInput.value);
+                const gender = document.querySelector('input[name="gender"]:checked').value;
+
+                if (!age || age <= 0) {
+                    alert('Zadejte prosím platný věk.');
+                    ageInput.focus();
+                    return;
+                }
+
+                if (gender === 'male') {
+                    hrMax = 211 - (0.64 * age);
+                } else { // female
+                    hrMax = 206 - (0.88 * age);
+                }
+                hrMax = Math.round(hrMax); // Round to nearest whole number
+                localStorage.setItem('hr_age', age);
+                localStorage.setItem('hr_gender', gender);
+                localStorage.removeItem('hr_manual_max'); // Clear manual value if calculated
+
+            } else { // manual
+                hrMax = parseInt(manualHrMaxInput.value);
+                if (!hrMax || hrMax <= 50 || hrMax > 250) { // Basic validation for manual input
+                    alert('Zadejte prosím platnou maximální tepovou frekvenci (mezi 50 a 250).');
+                    manualHrMaxInput.focus();
+                    return;
+                }
+                localStorage.setItem('hr_manual_max', hrMax);
+                localStorage.removeItem('hr_age'); // Clear age/gender if manual
+                localStorage.removeItem('hr_gender');
+            }
+
+
+            // 2. Calculate Thresholds (using the determined hrMax)
             let aepLowerFactor, aepUpperFactor, anpLowerFactor, anpUpperFactor;
 
             if (level === 'advanced') {
@@ -226,17 +288,20 @@
 
             document.getElementById('hr-results').classList.remove('hidden');
 
-            // Save inputs to localStorage
-            localStorage.setItem('hr_age', age);
-            localStorage.setItem('hr_gender', gender);
+            // Save common inputs to localStorage
             localStorage.setItem('hr_level', level);
+            localStorage.setItem('hr_method', selectedMethod); // Save selected method
         });
 
         // Restore state from localStorage on page load
         document.addEventListener('DOMContentLoaded', function () {
+            const savedMethod = localStorage.getItem('hr_method') || 'calculate';
+            document.querySelector(`input[name="hr-method"][value="${savedMethod}"]`).checked = true;
+
             const savedAge = localStorage.getItem('hr_age');
             const savedGender = localStorage.getItem('hr_gender');
             const savedLevel = localStorage.getItem('hr_level');
+            const savedManualMax = localStorage.getItem('hr_manual_max');
 
             if (savedAge) {
                 document.getElementById('age').value = savedAge;
@@ -244,12 +309,18 @@
             if (savedGender) {
                 document.querySelector(`input[name="gender"][value="${savedGender}"]`).checked = true;
             }
+            if (savedManualMax) {
+                document.getElementById('manual-hr-max').value = savedManualMax;
+            }
             if (savedLevel) {
                 document.querySelector(`input[name="level"][value="${savedLevel}"]`).checked = true;
             }
 
+            // Set initial visibility based on saved method
+            toggleHrInputMethod();
+
             // Optional: Automatically calculate if values are present
-            if (savedAge) {
+            if ((savedMethod === 'calculate' && savedAge) || (savedMethod === 'manual' && savedManualMax)) {
                 document.getElementById('calculate-hr').click();
             }
         });
