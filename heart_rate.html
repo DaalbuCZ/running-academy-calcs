@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulačka tepových zón - Running Academy</title>
+    <style>
+        body {
+            font-family: "League Gothic", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            color: white;
+            background-color: #121212;
+        }
+
+        .input-section,
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: white;
+            border-bottom: 2px solid #414141;
+            padding-bottom: 5px;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="number"],
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+            width: calc(100% - 22px);
+            /* Adjust for padding and border */
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: normal;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        button {
+            background-color: #c3931c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #d4b46c;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-section p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .result-section span {
+            font-weight: bold;
+            color: #d4b46c;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #d4b46c;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .back-button {
+                display: block;
+                width: calc(100% - 30px);
+                text-align: center;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Kalkulačka tepových zón</h1>
+    <a href="https://www.runningacademy.cz/" class="back-button">« zpět</a>
+
+    <div class="input-section">
+        <h2>Vstupní údaje</h2>
+        <div>
+            <label for="age">Věk:</label>
+            <input type="number" id="age" min="1" max="120" required>
+        </div>
+
+        <div class="radio-group">
+            <label>Pohlaví:</label>
+            <input type="radio" id="male" name="gender" value="male" checked>
+            <label for="male">Muž</label>
+            <input type="radio" id="female" name="gender" value="female">
+            <label for="female">Žena</label>
+        </div>
+
+        <div class="radio-group" style="margin-top: 15px;">
+            <label>Trénovanost:</label>
+            <input type="radio" id="hobby" name="level" value="hobby" checked>
+            <label for="hobby">Hobby / Začátečník</label>
+            <input type="radio" id="advanced" name="level" value="advanced">
+            <label for="advanced">Pokročilý</label>
+        </div>
+
+        <button id="calculate-hr">Vypočítat zóny</button>
+    </div>
+
+    <div id="hr-results" class="result-section hidden">
+        <h2>Výsledky</h2>
+        <p>Maximální tepová frekvence (HRmax): <span id="hr-max"></span> tepů/min</p>
+        <p>Aerobní práh (AEP - Z2): <span id="aep-zone"></span> tepů/min</p>
+        <p>Anaerobní práh (ANP - Z4): <span id="anp-zone"></span> tepů/min</p>
+    </div>
+
+    <script>
+        document.getElementById('calculate-hr').addEventListener('click', function () {
+            const ageInput = document.getElementById('age');
+            const age = parseInt(ageInput.value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const level = document.querySelector('input[name="level"]:checked').value;
+
+            if (!age || age <= 0) {
+                alert('Zadejte prosím platný věk.');
+                ageInput.focus();
+                return;
+            }
+
+            // 1. Calculate HRmax
+            let hrMax;
+            if (gender === 'male') {
+                hrMax = 211 - (0.64 * age);
+            } else { // female
+                hrMax = 206 - (0.88 * age);
+            }
+            hrMax = Math.round(hrMax); // Round to nearest whole number
+
+            // 2. Calculate Thresholds
+            let aepLowerFactor, aepUpperFactor, anpLowerFactor, anpUpperFactor;
+
+            if (level === 'advanced') {
+                aepLowerFactor = 0.72;
+                aepUpperFactor = 0.75;
+                anpLowerFactor = 0.84;
+                anpUpperFactor = 0.87;
+            } else { // hobby
+                aepLowerFactor = 0.67;
+                aepUpperFactor = 0.70;
+                anpLowerFactor = 0.77;
+                anpUpperFactor = 0.80;
+            }
+
+            const aepLower = Math.round(hrMax * aepLowerFactor);
+            const aepUpper = Math.round(hrMax * aepUpperFactor);
+            const anpLower = Math.round(hrMax * anpLowerFactor);
+            const anpUpper = Math.round(hrMax * anpUpperFactor);
+
+            // 3. Display Results
+            document.getElementById('hr-max').textContent = hrMax;
+            document.getElementById('aep-zone').textContent = `${aepLower} - ${aepUpper}`;
+            document.getElementById('anp-zone').textContent = `${anpLower} - ${anpUpper}`;
+
+            document.getElementById('hr-results').classList.remove('hidden');
+
+            // Save inputs to localStorage
+            localStorage.setItem('hr_age', age);
+            localStorage.setItem('hr_gender', gender);
+            localStorage.setItem('hr_level', level);
+        });
+
+        // Restore state from localStorage on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedAge = localStorage.getItem('hr_age');
+            const savedGender = localStorage.getItem('hr_gender');
+            const savedLevel = localStorage.getItem('hr_level');
+
+            if (savedAge) {
+                document.getElementById('age').value = savedAge;
+            }
+            if (savedGender) {
+                document.querySelector(`input[name="gender"][value="${savedGender}"]`).checked = true;
+            }
+            if (savedLevel) {
+                document.querySelector(`input[name="level"][value="${savedLevel}"]`).checked = true;
+            }
+
+            // Optional: Automatically calculate if values are present
+            if (savedAge) {
+                document.getElementById('calculate-hr').click();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
