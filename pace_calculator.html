@@ -465,7 +465,8 @@
             const distanceType = document.getElementById('distance-type').value;
             localStorage.setItem('distanceType', distanceType);
             if (distanceType === 'custom') {
-                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const inputDistanceValue = document.getElementById('custom-distance-value').value;
+                const distanceValue = parseFloat(inputDistanceValue.replace(',', '.'));
                 const distanceUnit = document.getElementById('custom-distance-unit').value;
                 localStorage.setItem('customDistanceValue', distanceValue);
                 localStorage.setItem('customDistanceUnit', distanceUnit);
@@ -473,7 +474,8 @@
             let distanceMeters, distanceKm;
 
             if (distanceType === 'custom') {
-                const distanceValue = parseFloat(document.getElementById('custom-distance-value').value);
+                const inputDistanceValue = document.getElementById('custom-distance-value').value;
+                const distanceValue = parseFloat(inputDistanceValue.replace(',', '.'));
                 const distanceUnit = document.getElementById('custom-distance-unit').value;
 
                 if (distanceUnit === 'km') {
@@ -500,7 +502,7 @@
                 : `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
             const temperature = document.getElementById('temperature').value ?
-                parseFloat(document.getElementById('temperature').value) : null;
+                parseFloat(document.getElementById('temperature').value.replace(',', '.')) : null;
             const temperatureUnit = document.getElementById('temperature-unit').value;
             const altitude = document.getElementById('altitude').value ?
                 parseFloat(document.getElementById('altitude').value) : null;
