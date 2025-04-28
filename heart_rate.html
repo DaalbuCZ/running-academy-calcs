@@ -241,7 +241,7 @@
                 if (gender === 'male') {
                     hrMax = 211 - (0.64 * age);
                 } else { // female
-                    hrMax = 206 - (0.88 * age);
+                    hrMax = 210 - (0.67 * age);
                 }
                 hrMax = Math.round(hrMax); // Round to nearest whole number
                 localStorage.setItem('hr_age', age);
