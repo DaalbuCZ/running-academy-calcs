@@ -250,7 +250,8 @@
 
                 <div id="custom-distance" class="hidden">
                     <label for="custom-distance-value">Vlastní vzdálenost:</label>
-                    <input type="number" id="custom-distance-value" min="0.1" step="0.01">
+                    <input type="text" id="custom-distance-value" inputmode="decimal" pattern="[0-9]+([\.,][0-9]+)?"
+                        placeholder="např. 5,5">
                     <select id="custom-distance-unit">
                         <option value="km">km</option>
                         <option value="m">m</option>
@@ -461,6 +462,9 @@
         });
 
         document.getElementById('calculate-all').addEventListener('click', function () {
+            // Replace any commas with dots in custom distance input before parsing
+            const customInput = document.getElementById('custom-distance-value');
+            if (customInput) customInput.value = customInput.value.replace(/,/g, '.');
             // Get input values
             const distanceType = document.getElementById('distance-type').value;
             localStorage.setItem('distanceType', distanceType);
@@ -639,7 +643,7 @@
                     marathon: 'Marathon',
                     threshold: 'Threshold',
                     vo2max: 'VO2 Max',
-                    anaerobic: 'Anaerobic',
+                    anaerobic: 'Anaerobní',
                     longRunUpper: 'Long Run (Upper)' // Display upper bound of long run pace
                 };
 
@@ -669,7 +673,7 @@
                     }
                 }
 
-                // --- Calculate and Add Yasso 800 based on predicted Marathon Time --- 
+                // --- Calculate and Add Yasso 800 based on predicted Marathon Time ---
                 const marathonPerformance = vdotResults.equivalentPerformances.marathon;
                 if (marathonPerformance && marathonPerformance.time) {
                     const timeParts = marathonPerformance.time.split(':');
