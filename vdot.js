@@ -321,6 +321,16 @@ class VDOTCalculator {
    * @returns {Object} - Calculated results
    */
   calculate(input) {
+    // Sanitize numeric inputs passed as strings with comma decimals
+    if (typeof input.distance === 'string') {
+      input.distance = parseFloat(input.distance.replace(',', '.'));
+    }
+    if (input.temperature != null && typeof input.temperature === 'string') {
+      input.temperature = parseFloat(input.temperature.replace(',', '.'));
+    }
+    if (input.altitude != null && typeof input.altitude === 'string') {
+      input.altitude = parseFloat(input.altitude.replace(',', '.'));
+    }
     const {
       distance,
       time,
