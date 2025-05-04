@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atletická Bodová Kalkulačka</title>
+    <style>
+        body {
+            font-family: "League Gothic", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: white;
+            background-color: #121212;
+        }
+
+        .input-section,
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #121212;
+            border-radius: 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #121212;
+            color: white;
+        }
+
+        button {
+            background-color: #c3931c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #d4b46c;
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .form-container {
+            margin-bottom: 15px;
+        }
+
+        .share-button {
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #414141;
+            padding-bottom: 5px;
+        }
+
+        a {
+            color: #c3931c;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .methodology {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #414141;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .time-inputs input {
+            width: 60px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Atletická Bodová Kalkulačka</h1>
+
+    <div class="calculator-section">
+        <div class="input-section">
+            <div class="form-container">
+                <label for="category">Kategorie:</label>
+                <select id="category">
+                    <option value="outdoor">Venku</option>
+                    <option value="indoor">Hala</option>
+                </select>
+            </div>
+
+            <div class="form-container">
+                <label for="gender">Pohlaví:</label>
+                <select id="gender">
+                    <option value="men">Muži</option>
+                    <option value="women">Ženy</option>
+                </select>
+            </div>
+
+            <div class="form-container">
+                <label for="event">Disciplína:</label>
+                <select id="event"></select>
+            </div>
+
+            <div class="form-container" id="mark-container">
+                <label for="mark">Výkon:</label>
+                <input type="text" id="mark" placeholder="Zadejte vzdálenost">
+                <span id="mark-unit"></span>
+            </div>
+
+            <div class="form-container hidden" id="time-mark-container">
+                <label>Čas:</label>
+                <div class="time-inputs">
+                    <input type="number" id="hours" min="0" max="99" placeholder="HH">
+                    <input type="number" id="minutes" min="0" max="59" placeholder="MM">
+                    <input type="number" id="seconds" min="0" max="59" step="0.01" placeholder="SS.ms">
+                </div>
+            </div>
+
+            <div class="form-container">
+                <label for="points">Body:</label>
+                <input type="number" id="points" placeholder="0-1400" min="0" max="1400">
+                <span>b.</span>
+            </div>
+
+            <button id="calculate-button">Vypočítat</button>
+        </div>
+    </div>
+
+    <script type="module" src="athleticsCalculator.js"></script>
+</body>
+
+</html>
