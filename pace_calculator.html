@@ -365,7 +365,20 @@
                                 <th class="speed-header">Rychlost</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            <tr>
+                                <td>Easy/Long run</td>
+                                <td id="easy-long-pace">--:--</td>
+                            </tr>
+                            <tr>
+                                <td>Long run (lower)</td>
+                                <td id="long-lower-pace">--:--</td>
+                            </tr>
+                            <tr>
+                                <td>Marathon</td>
+                                <td id="marathon-pace">--:--</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -637,13 +650,14 @@
                 pacesTable.innerHTML = ''; // Clear previous results
 
                 // Define the order and display names
-                const paceOrder = ['easy', 'marathon', 'threshold', 'vo2max', 'anaerobic', 'longRunUpper']; // Exclude yasso800 and longRunLower for now
+                const paceOrder = ['easy', 'longRunLower', 'longRunUpper', 'marathon', 'threshold', 'vo2max', 'anaerobic']; // Include longRunLower
                 const paceDisplayNames = {
                     easy: 'Easy',
                     marathon: 'Marathon',
                     threshold: 'Threshold',
                     vo2max: 'VO2 Max',
                     anaerobic: 'Anaerobní',
+                    longRunLower: 'Long Run (Lower)',
                     longRunUpper: 'Long Run (Upper)' // Display upper bound of long run pace
                 };
 

@@ -96,14 +96,15 @@ function calculateTrainingPaces(vo2max) {
   const thresholdPaceKm = 60000 / calculatePaceFactor(0.88 * vo2max);
   const vo2maxPaceKm = 60000 / vo2maxPaceFactorKm;
   const anaerobicPaceKm = 60000 / calculatePaceFactor(1.1 * vo2max);
-  const longRunUpperPaceKm = 60000 / calculatePaceFactor(0.6 * vo2max);
+  const longRunLowerPaceKm = 60000 / calculatePaceFactor(0.6 * vo2max); // Adjusted to be slower
+  const longRunUpperPaceKm = easyPaceKm; // Adjusted to match easy pace
 
   return {
     easy: formatPace(easyPaceKm),
     threshold: formatPace(thresholdPaceKm),
     vo2max: formatPace(vo2maxPaceKm),
     anaerobic: formatPace(anaerobicPaceKm),
-    longRunLower: formatPace(easyPaceKm), // Lower bound is the easy pace
+    longRunLower: formatPace(longRunLowerPaceKm),
     longRunUpper: formatPace(longRunUpperPaceKm),
   };
 }
