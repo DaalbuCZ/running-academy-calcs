@@ -109,15 +109,158 @@ function populateEventDropdown() {
   const eventSelect = document.getElementById("event");
   eventSelect.innerHTML = '<option value="">Vyberte disciplínu</option>'; // Clear previous options
 
+  // Define a custom sort order
+  const customOrder = [
+    // Sprints & Hurdles (shortest to longest, track then indoor if applicable)
+    "50m",
+    "50m sh",
+    "50mH",
+    "55m",
+    "55m sh", // Added "sh" variant for completeness if it exists
+    "55mH",
+    "55mH sh", // Added "sh" variant
+    "60m",
+    "60m sh",
+    "60mH",
+    "60mH sh", // Added "sh" variant
+    "100m",
+    "100m sh",
+    // "100mH", // Standard Women's Hurdles - add if key exists in data
+    "110mH", // Typically Men's Hurdles
+    "150m",
+    "150m sh",
+    "200m",
+    "200m sh",
+    "300m",
+    "300m sh",
+    "400m",
+    "400m sh",
+    "400mH",
+
+    // Middle Distances (track then indoor, including miles and SC)
+    "500m",
+    "500m sh",
+    "600m",
+    "600m sh",
+    "800m",
+    "800m sh",
+    "1000m",
+    "1000m sh",
+    "1500m",
+    "1500m sh",
+    "Mile",
+    "Mile sh",
+    "2000m",
+    "2000m sh",
+    "2000mSC",
+    "2000mSC sh",
+    "2 Miles",
+    "2 Miles sh",
+    "3000m",
+    "3000m sh",
+    "3000mSC",
+    "3000mSC sh",
+
+    // Long Distances (track then indoor)
+    "5000m",
+    "5000m sh",
+    "10000m",
+    "10000m sh",
+
+    // Road Races (shortest to longest)
+    "Road Mile",
+    "Road 5 km", // Key from user's example
+    "Road 5K", // Keep old key in case it's used for other gender/data
+    "Road 10 km", // Key from user's example
+    "Road 10K", // Keep old key
+    "Road 10 Miles",
+    "Road 15 km", // Key from user's example
+    "Road 15K", // Keep old key
+    "Road 20 km", // Key from user's example
+    "Road 20K", // Keep old key
+    "Road 25 km", // Key from user's example
+    "Road HM",
+    "Road 30 km", // Key from user's example
+    "Road Marathon",
+    "Road 100 km", // Key from user's example
+    "Road 100K", // Keep old key
+
+    // Walks (ensure keys match data, e.g., 10000mW vs 10,000mW)
+    "3000mW",
+    "3000mW sh",
+    "5000mW",
+    "5000mW sh",
+    "10000mW",
+    "10000mW sh", // Assuming 10000mW is the key
+    "10kmW",
+    "20000mW",
+    "20000mW sh", // Assuming 20000mW is the key
+    "20kmW",
+    "30kmW",
+    "35kmW",
+    "50kmW",
+
+    // Jumps
+    "HJ",
+    "HJ sh",
+    "PV",
+    "PV sh",
+    "LJ",
+    "LJ sh",
+    "TJ",
+    "TJ sh",
+
+    // Throws
+    "SP",
+    "SP sh",
+    "DT",
+    "DT sh",
+    "HT",
+    "HT sh",
+    "JT",
+    "JT sh",
+    "BT",
+    "BT sh",
+
+    // Combined Events
+    "Pentathlon",
+    "Pentathlon sh",
+    "Heptathlon",
+    "Heptathlon sh",
+    "Decathlon",
+    "Decathlon sh",
+  ];
+
   if (gender && coefficientsData[gender]) {
-    Object.keys(coefficientsData[gender])
-      .sort()
-      .forEach((event) => {
-        const option = document.createElement("option");
-        option.value = event; // Keep original key for calculations
-        option.textContent = translateEventName(event); // Display translated name
-        eventSelect.appendChild(option);
-      });
+    let eventKeys = Object.keys(coefficientsData[gender]);
+
+    // Sort eventKeys based on customOrder
+    eventKeys.sort((a, b) => {
+      let indexA = customOrder.indexOf(a);
+      let indexB = customOrder.indexOf(b);
+
+      // If both are in customOrder, sort by their order
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // If only a is in customOrder, a comes first
+      if (indexA !== -1) {
+        return -1;
+      }
+      // If only b is in customOrder, b comes first
+      if (indexB !== -1) {
+        return 1;
+      }
+      // If neither is in customOrder, sort alphabetically
+      return a.localeCompare(b);
+    });
+
+    eventKeys.forEach((event) => {
+      const option = document.createElement("option");
+      option.value = event; // Keep original key for calculations
+      option.textContent = translateEventName(event); // Display translated name
+      eventSelect.appendChild(option);
+    });
 
     // Load saved event for this gender
     const savedEvent = localStorage.getItem(`selectedEvent_${gender}`);
