@@ -53,14 +53,21 @@ function translateEventName(eventKey) {
     name = name.replace("SC", "překážek").replace("  ", " "); // Replace SC and fix potential double space
   }
 
+  // Other specific names
+  if (name === "Mile") name = "Míle";
+  if (name === "2 Miles") name = "2 míle";
+
+  if (name.endsWith("Mile")) {
+    name = name.replace("Mile", "míle");
+  }
+
+  if (name.endsWith("Miles")) {
+    name = name.replace("Miles", "mílí");
+  }
   // Add (hala) if it was detected and not added by combined events
   if (isShortTrack && !name.includes("(hala)")) {
     name += " (hala)";
   }
-
-  // Other specific names
-  if (name === "Mile") name = "Míle";
-  if (name === "2 Miles") name = "2 míle";
 
   // Normalize spaces (e.g. if " Silniční" or "chůze ")
   name = name.replace(/\s+/g, " ").trim();
@@ -154,12 +161,12 @@ function populateEventDropdown() {
     "2000m sh",
     "2000mSC",
     "2000mSC sh",
-    "2 Miles",
-    "2 Miles sh",
     "3000m",
     "3000m sh",
     "3000mSC",
     "3000mSC sh",
+    "2 Miles",
+    "2 Miles sh",
 
     // Long Distances (track then indoor)
     "5000m",
