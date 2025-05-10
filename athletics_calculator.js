@@ -374,6 +374,11 @@ function calculatePoints() {
   if (isNaN(points)) {
     resultDiv.textContent =
       "Chyba výpočtu. Zkontrolujte vstupy nebo koeficienty.";
+  } else if (points <= 0) {
+    resultDiv.textContent = "Vypočítané body: 0 (záporné, zkontrolujte vstup)";
+  } else if (points > 1400) {
+    resultDiv.textContent =
+      "Vypočítané body: 1400 (maximální limit, zkontrolujte vstup)";
   } else {
     resultDiv.textContent = `Vypočítané body: ${points}`;
   }
