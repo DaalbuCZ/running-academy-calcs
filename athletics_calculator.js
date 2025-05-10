@@ -93,7 +93,7 @@ function populateGenderDropdown() {
       genderSelect.querySelector(`option[value="${savedGender}"]`)
     ) {
       genderSelect.value = savedGender;
-      populateEventDropdown();
+      populateEventDropdown(); // This will also trigger event population
     }
   } else {
     console.error(
@@ -137,21 +137,7 @@ function populateEventDropdown() {
 }
 
 function parsePerformance(performanceStr) {
-  if (performanceStr.includes(":")) {
-    const parts = performanceStr.split(":").map(Number);
-    let seconds = 0;
-    if (parts.length === 3) {
-      // hh:mm:ss.ff
-      seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
-    } else if (parts.length === 2) {
-      // mm:ss.ff
-      seconds = parts[0] * 60 + parts[1];
-    } else {
-      return NaN; // Invalid time format
-    }
-    return seconds;
-  }
-  return parseFloat(performanceStr);
+  return parseFloat(performanceStr); // Keep basic float parsing for potential other uses or simplify further
 }
 
 // Helper function to handle event change and save to localStorage
@@ -166,19 +152,48 @@ function handleEventChange() {
 function calculatePoints() {
   const gender = document.getElementById("gender").value;
   const event = document.getElementById("event").value;
-  const performanceStr = document.getElementById("performance").value;
   const resultDiv = document.getElementById("result");
+  let performanceValue;
 
-  if (!gender || !event || !performanceStr) {
-    resultDiv.textContent =
-      "Vyberte prosím pohlaví, disciplínu a zadejte výkon.";
+  // Always read from time input fields
+  const hoursInput = document.getElementById("perfHours");
+  const minutesInput = document.getElementById("perfMinutes");
+  const secondsInput = document.getElementById("perfSeconds");
+  const fractionsInput = document.getElementById("perfFractions");
+
+  const hours = parseFloat(hoursInput.value) || 0;
+  const minutes = parseFloat(minutesInput.value) || 0;
+  const seconds = parseFloat(secondsInput.value) || 0;
+  const fractions = parseFloat(fractionsInput.value) || 0;
+
+  // Check if all fields are truly empty (not just '0' if user typed it and then deleted)
+  const allFieldsEmpty =
+    hoursInput.value.trim() === "" &&
+    minutesInput.value.trim() === "" &&
+    secondsInput.value.trim() === "" &&
+    fractionsInput.value.trim() === "";
+
+  if (!gender || !event) {
+    resultDiv.textContent = "Vyberte prosím pohlaví a disciplínu.";
     return;
   }
 
-  const performanceValue = parsePerformance(performanceStr); // Renamed from 'performance'
+  if (allFieldsEmpty) {
+    resultDiv.textContent = "Zadejte prosím výkon.";
+    return;
+  }
+
+  performanceValue = hours * 3600 + minutes * 60 + seconds + fractions / 100;
+
   if (isNaN(performanceValue)) {
     resultDiv.textContent =
-      "Neplatná hodnota výkonu. Použijte čísla nebo formát hh:mm:ss.ff / mm:ss.ff.";
+      "Neplatná hodnota výkonu. Zkontrolujte zadané údaje.";
+    return;
+  }
+
+  // Ensure performanceValue is not negative, though inputs are min="0"
+  if (performanceValue < 0) {
+    resultDiv.textContent = "Výkon nemůže být záporný.";
     return;
   }
 
@@ -192,42 +207,9 @@ function calculatePoints() {
   const coeffs = coefficientsData[gender][event];
   let points = 0;
 
-  const fieldEvents = [
-    "HJ",
-    "PV",
-    "LJ",
-    "TJ",
-    "SP",
-    "DT",
-    "HT",
-    "JT",
-    "Dec.",
-    "Hept.",
-    "SHOT",
-    "DISCUS",
-    "HAMMER",
-    "JAVELIN", // Added full names for robustness
-    "HIGH JUMP",
-    "POLE VAULT",
-    "LONG JUMP",
-    "TRIPLE JUMP",
-  ];
-  const isFieldEvent = fieldEvents.some((fe) =>
-    event.toUpperCase().includes(fe.toUpperCase())
-  );
-
   if (coeffs.length === 3) {
     const [A, B, C] = coeffs;
-    let valueForFormula = performanceValue;
-
-    if (
-      event.toUpperCase().includes("HJ") ||
-      event.toUpperCase().includes("PV")
-    ) {
-      valueForFormula = performanceValue * 100; // Convert m to cm for these specific field events
-    }
-
-    points = A * Math.pow(valueForFormula, 2) + B * valueForFormula + C;
+    points = A * Math.pow(performanceValue, 2) + B * performanceValue + C;
   } else if (coeffs.length === 1) {
     resultDiv.textContent =
       "Neplatný formát koeficientů pro tuto disciplínu (jedna hodnota).";
@@ -250,57 +232,28 @@ function calculatePoints() {
 function formatOutputPerformance(value, eventKey) {
   if (isNaN(value)) return "Chyba výpočtu";
 
-  const eventUpper = eventKey.toUpperCase();
-  const isHJ_PV = eventUpper.includes("HJ") || eventUpper.includes("PV");
-  const isFieldDistanceHeight = [
-    "LJ",
-    "TJ",
-    "SP",
-    "DT",
-    "HT",
-    "JT",
-    "SHOT",
-    "DISCUS",
-    "HAMMER",
-    "JAVELIN",
-    "HIGH JUMP",
-    "POLE VAULT",
-    "LONG JUMP",
-    "TRIPLE JUMP",
-  ].some((e) => eventUpper.includes(e));
-  const isDec_Hept =
-    eventUpper.includes("DEC.") || eventUpper.includes("HEPT.");
+  if (value < 0) return "Neplatný výkon (záporný čas)";
 
-  if (isDec_Hept) {
-    if (value < 0) return "Neplatný výkon (záporné body)";
-    return `${Math.round(value)} bodů`;
-  } else if (isHJ_PV || isFieldDistanceHeight) {
-    if (value < 0) return "Neplatný výkon (záporná vzdálenost/výška)";
-    return `${value.toFixed(2)} m`;
+  const totalSeconds = value;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secondsFull = totalSeconds % 60;
+  const secondsInt = Math.floor(secondsFull);
+  const hundredths = Math.round((secondsFull - secondsInt) * 100);
+
+  let result = "";
+  if (hours > 0) {
+    result += `${hours}:`;
+    result += `${minutes.toString().padStart(2, "0")}:`;
+    result += `${secondsInt.toString().padStart(2, "0")}`;
+  } else if (minutes > 0) {
+    result += `${minutes}:`;
+    result += `${secondsInt.toString().padStart(2, "0")}`;
   } else {
-    // Track event (time)
-    if (value < 0) return "Neplatný výkon (záporný čas)";
-    const totalSeconds = value;
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const secondsFull = totalSeconds % 60;
-    const secondsInt = Math.floor(secondsFull);
-    const hundredths = Math.round((secondsFull - secondsInt) * 100);
-
-    let result = "";
-    if (hours > 0) {
-      result += `${hours}:`;
-      result += `${minutes.toString().padStart(2, "0")}:`;
-      result += `${secondsInt.toString().padStart(2, "0")}`;
-    } else if (minutes > 0) {
-      result += `${minutes}:`;
-      result += `${secondsInt.toString().padStart(2, "0")}`;
-    } else {
-      result += `${secondsInt}`;
-    }
-    result += `.${hundredths.toString().padStart(2, "0").slice(0, 2)}`; // Ensure two digits for hundredths
-    return result;
+    result += `${secondsInt}`;
   }
+  result += `.${hundredths.toString().padStart(2, "0").slice(0, 2)}`;
+  return result;
 }
 
 function calculatePerformanceFromPoints() {
@@ -346,82 +299,36 @@ function calculatePerformanceFromPoints() {
   let perf1 = (-B + sqrtDiscriminant) / (2 * A);
   let perf2 = (-B - sqrtDiscriminant) / (2 * A);
 
-  const fieldEvents = [
-    "HJ",
-    "PV",
-    "LJ",
-    "TJ",
-    "SP",
-    "DT",
-    "HT",
-    "JT",
-    "Dec.",
-    "Hept.",
-    "SHOT",
-    "DISCUS",
-    "HAMMER",
-    "JAVELIN",
-    "HIGH JUMP",
-    "POLE VAULT",
-    "LONG JUMP",
-    "TRIPLE JUMP",
-  ];
-  const isFieldEvent = fieldEvents.some((fe) =>
-    event.toUpperCase().includes(fe.toUpperCase())
-  );
+  const validRoots = [perf1, perf2].filter((r) => isFinite(r) && r > 0);
 
-  let calculatedValueFromFormula;
-
-  const positiveRoots = [perf1, perf2].filter((r) => r > 0 && isFinite(r));
-
-  if (positiveRoots.length === 0) {
+  if (validRoots.length === 0) {
     resultDiv.textContent = "Nelze vypočítat platný kladný výkon.";
     return;
-  } else if (positiveRoots.length === 1) {
-    calculatedValueFromFormula = positiveRoots[0];
+  } else if (validRoots.length === 1) {
+    calculatedValueFromFormula = validRoots[0];
   } else {
-    if (isFieldEvent) {
-      calculatedValueFromFormula = Math.max(...positiveRoots);
-    } else {
-      calculatedValueFromFormula = Math.min(...positiveRoots);
-    }
+    calculatedValueFromFormula = Math.min(...validRoots);
   }
 
-  if (
-    typeof calculatedValueFromFormula === "undefined" ||
-    isNaN(calculatedValueFromFormula)
-  ) {
-    resultDiv.textContent = "Chyba při výběru kořene kvadratické rovnice.";
+  if (calculatedValueFromFormula < 0) {
+    resultDiv.textContent =
+      "Vypočítaný výkon je záporný, což není platné pro čas.";
     return;
   }
 
-  let finalPerformance = calculatedValueFromFormula;
-  if (
-    event.toUpperCase().includes("HJ") ||
-    event.toUpperCase().includes("PV")
-  ) {
-    finalPerformance = calculatedValueFromFormula / 100;
-  }
-
-  resultDiv.textContent = `Vypočítaný výkon: ${formatOutputPerformance(
-    finalPerformance,
+  const formattedPerformance = formatOutputPerformance(
+    calculatedValueFromFormula,
     event
-  )}`;
+  );
+  resultDiv.textContent = `Odpovídající výkon: ${formattedPerformance}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCoefficients();
-  const calculateButton = document.getElementById("calculateButton");
-  if (calculateButton) {
-    calculateButton.addEventListener("click", calculatePoints);
-  }
-  const calculatePerformanceButton = document.getElementById(
-    "calculatePerformanceButton"
-  );
-  if (calculatePerformanceButton) {
-    calculatePerformanceButton.addEventListener(
-      "click",
-      calculatePerformanceFromPoints
-    );
-  }
+  document
+    .getElementById("calculateButton")
+    .addEventListener("click", calculatePoints);
+  document
+    .getElementById("calculatePerformanceButton")
+    .addEventListener("click", calculatePerformanceFromPoints);
 });

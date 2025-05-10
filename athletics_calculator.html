@@ -34,7 +34,6 @@
             font-size: 2rem;
             border-bottom: 2px solid #414141;
             padding-bottom: 5px;
-            /* Changed from 10px */
         }
 
         label {
@@ -50,7 +49,6 @@
         input[type="text"] {
             width: 100%;
             padding: 8px;
-            /* Changed from 12px for select/input */
             margin-bottom: 18px;
             border: 1px solid #414141;
             border-radius: 5px;
@@ -59,6 +57,37 @@
             background-color: #2c2c2c;
             color: white;
             transition: border-color 0.3s;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #414141;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            background-color: #2c2c2c;
+            color: white;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+
+        input[type="number"]:focus {
+            border-color: #c3931c;
+            outline: none;
+        }
+
+        /* Hide spinners from number inputs */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            /* Firefox */
+            appearance: textfield;
+            /* Standard */
         }
 
         select:focus,
@@ -70,9 +99,7 @@
         button {
             width: 100%;
             padding: 10px 15px;
-            /* Changed from 14px */
             margin-top: 10px;
-            /* Added */
             margin-bottom: 18px;
             border: 1px solid #414141;
             border-radius: 5px;
@@ -248,12 +275,25 @@
             <option value="">Nejprve vyberte pohlaví</option>
         </select>
 
-        <label for="performance">Zadejte výkon:</label>
-        <input type="text" id="performance" placeholder="např. 10.5, 2.20, 1:30.25">
-        <div class="instructions">
-            Čas: v sekundách (např. <code>55.67</code>), <code>mm:ss.ff</code> (např. <code>3:45.50</code>), nebo
-            <code>hh:mm:ss.ff</code> (např. <code>2:10:30.12</code>).<br>
-            Vzdálenost/Výška: v metrech (např. <code>6.50</code>, <code>2.10</code>, <code>70.25</code>).
+        <label id="performanceLabel" for="perfHours">Zadejte výkon:</label>
+
+        <!-- Time input fields -->
+        <div id="timeInputsWrapper" style="margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input type="number" id="perfHours" placeholder="HH" min="0" style="width: 60px;">
+                <span style="font-size: 1.2rem; color: #a0a0a0;">:</span>
+                <input type="number" id="perfMinutes" placeholder="MM" min="0" max="59" style="width: 60px;">
+                <span style="font-size: 1.2rem; color: #a0a0a0;">:</span>
+                <input type="number" id="perfSeconds" placeholder="SS" min="0" max="59" style="width: 60px;">
+                <span style="font-size: 1.2rem; color: #a0a0a0;">.</span>
+                <input type="number" id="perfFractions" placeholder="FF" min="0" max="99" style="width: 60px;">
+            </div>
+            <div class="instructions" id="timeInstructions"
+                style="font-size: 0.8rem; color: #a0a0a0; margin-top: 5px; line-height: 1.3;">
+                Zadejte čas ve formátu HH:MM:SS.FF (hodiny, minuty, sekundy, setiny sekundy).<br>
+                Například pro 1 minutu, 23 sekund a 45 setin zadejte: MM: <code>23</code>, SS: <code>45</code>.<br>
+                Prázdná pole nebo pole s hodnotou 0 budou ignorována, pokud nejsou součástí platného času.
+            </div>
         </div>
 
         <button id="calculateButton">Vypočítat body</button>
