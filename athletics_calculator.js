@@ -27,26 +27,12 @@ function translateEventName(eventKey) {
   // Handle specific full names first to avoid partial replacements
   if (name === "Road HM") return "Silniční půlmaraton";
   if (name === "Road Marathon") return "Silniční maraton";
-  if (name === "TJ") return "Trojskok";
-  if (name === "HJ") return "Skok do výšky";
-  if (name === "PV") return "Skok o tyči";
-  if (name === "LJ") return "Skok do dálky";
-  if (name === "SP") return "Vrh koulí";
-  if (name === "DT") return "Hod diskem";
-  if (name === "HT") return "Hod kladivem";
-  if (name === "JT") return "Hod oštěpem";
 
   let isShortTrack = false;
   if (name.includes(" sh")) {
     isShortTrack = true;
     name = name.replace(" sh", "").trim(); // Remove sh and trim potential space
   }
-
-  // Combined events - check after 'sh' removal
-  if (name === "Dec.") return isShortTrack ? "Desetiboj (hala)" : "Desetiboj";
-  if (name === "Hept.") return isShortTrack ? "Sedmiboj (hala)" : "Sedmiboj";
-  if (name === "Pent.") return isShortTrack ? "Pětiboj (hala)" : "Pětiboj";
-
   // General transformations
   if (name.startsWith("Road ")) {
     name = name.replace("Road ", "Silniční ");
@@ -65,16 +51,6 @@ function translateEventName(eventKey) {
   if (name.includes("SC")) {
     // Steeplechase
     name = name.replace("SC", "překážek").replace("  ", " "); // Replace SC and fix potential double space
-  }
-
-  if (name.includes("mix")) {
-    name = name.replace("mix", "smíšená");
-  }
-
-  // Relays like "4x100m"
-  if (/^[0-9]+x[0-9]+m$/.test(name.split(" ")[0])) {
-    // Check if the first part is a relay format
-    name += " štafeta";
   }
 
   // Add (hala) if it was detected and not added by combined events
