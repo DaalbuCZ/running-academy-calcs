@@ -256,79 +256,9 @@ function formatOutputPerformance(value, eventKey) {
   return result;
 }
 
-function calculatePerformanceFromPoints() {
-  const gender = document.getElementById("gender").value;
-  const event = document.getElementById("event").value;
-  const pointsStr = document.getElementById("points").value;
-  const resultDiv = document.getElementById("result");
-
-  if (!gender || !event || !pointsStr) {
-    resultDiv.textContent = "Vyberte pohlaví, disciplínu a zadejte body.";
-    return;
-  }
-
-  const targetPoints = parseFloat(pointsStr);
-  if (isNaN(targetPoints)) {
-    resultDiv.textContent = "Neplatná hodnota bodů. Použijte číslo.";
-    return;
-  }
-
-  if (!coefficientsData[gender] || !coefficientsData[gender][event]) {
-    resultDiv.textContent =
-      "Koeficienty nebyly nalezeny pro vybrané pohlaví/disciplínu.";
-    return;
-  }
-
-  const coeffs = coefficientsData[gender][event];
-  if (coeffs.length !== 3) {
-    resultDiv.textContent =
-      "Výpočet výkonu pro tento typ koeficientů není podporován.";
-    return;
-  }
-
-  const [A, B, C] = coeffs;
-  const C_prime = C - targetPoints;
-  const discriminant = B * B - 4 * A * C_prime;
-
-  if (discriminant < 0) {
-    resultDiv.textContent = "Nelze vypočítat výkon (záporný diskriminant).";
-    return;
-  }
-
-  const sqrtDiscriminant = Math.sqrt(discriminant);
-  let perf1 = (-B + sqrtDiscriminant) / (2 * A);
-  let perf2 = (-B - sqrtDiscriminant) / (2 * A);
-
-  const validRoots = [perf1, perf2].filter((r) => isFinite(r) && r > 0);
-
-  if (validRoots.length === 0) {
-    resultDiv.textContent = "Nelze vypočítat platný kladný výkon.";
-    return;
-  } else if (validRoots.length === 1) {
-    calculatedValueFromFormula = validRoots[0];
-  } else {
-    calculatedValueFromFormula = Math.min(...validRoots);
-  }
-
-  if (calculatedValueFromFormula < 0) {
-    resultDiv.textContent =
-      "Vypočítaný výkon je záporný, což není platné pro čas.";
-    return;
-  }
-
-  const formattedPerformance = formatOutputPerformance(
-    calculatedValueFromFormula,
-    event
-  );
-  resultDiv.textContent = `Odpovídající výkon: ${formattedPerformance}`;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   loadCoefficients();
   document
     .getElementById("calculateButton")
     .addEventListener("click", calculatePoints);
-  document
-    .getElementById("calculatePerformanceButton")
-    .addEventListener("click", calculatePerformanceFromPoints);
 });
