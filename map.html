@@ -1,18 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Mapa článků</title>
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Maplibre GL -->
+    <title>Mapa článků</title>
+    <!-- MapLibre GL JS -->
     <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
-    <!-- Maplibre GL Leaflet  -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
     <style>
         #map {
             height: 80vh;
@@ -26,6 +21,11 @@
         .form-container input {
             margin-right: 5px;
         }
+
+        .maplibregl-popup-content a {
+            color: #0078A8;
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -38,15 +38,17 @@
     </div>
     <div id="map"></div>
     <script>
-        // Initialize Leaflet map
-        const map = L.map('map').setView([49.820, 15.478], 7);
-
-        // Add MapLibre GL vector tiles from OpenFreeMap
-        L.maplibreGL({
+        // Initialize MapLibre GL JS map
+        const map = new maplibregl.Map({
+            container: 'map',
             style: 'https://tiles.openfreemap.org/styles/liberty',
-        }).addTo(map);
+            center: [15.478, 49.820], // [lng, lat]
+            zoom: 6.8
+        });
 
-        // Marker adding logic
+        // Add navigation controls
+        map.addControl(new maplibregl.NavigationControl());
+
         let addMarkerMode = false;
         document.getElementById('addMarkerBtn').onclick = function () {
             addMarkerMode = true;
@@ -61,9 +63,14 @@
                 alert('Prosím, zadejte název a validní URL.');
                 return;
             }
-            const marker = L.marker(e.latlng).addTo(map);
-            marker.bindPopup(`<a href="${url}" target="_blank">${title}</a>`);
-
+            // Create a marker
+            const marker = new maplibregl.Marker()
+                .setLngLat(e.lngLat)
+                .addTo(map);
+            // Create a popup
+            const popup = new maplibregl.Popup({ offset: 25 })
+                .setHTML(`<a href="${url}" target="_blank">${title}</a>`);
+            marker.setPopup(popup);
             addMarkerMode = false;
             document.getElementById('addMarkerBtn').textContent = 'Přidat článek (Klikněte na mapu)';
             document.getElementById('articleTitle').value = '';
