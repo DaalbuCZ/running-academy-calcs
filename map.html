@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Map with Article Links</title>
+    <title> Mapa článků</title>
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Maplibre GL -->
@@ -30,11 +30,11 @@
 </head>
 
 <body>
-    <h2>Article map</h2>
+    <h2>Mapa článků</h2>
     <div class="form-container">
-        <input type="text" id="articleTitle" placeholder="Article Title">
-        <input type="url" id="articleUrl" placeholder="Article URL">
-        <button id="addMarkerBtn">Add Marker (Click on Map)</button>
+        <input type="text" id="articleTitle" placeholder="Název článku">
+        <input type="url" id="articleUrl" placeholder="URL článku">
+        <button id="addMarkerBtn">Přidat článek (Klikněte na mapu)</button>
     </div>
     <div id="map"></div>
     <script>
@@ -50,7 +50,7 @@
         let addMarkerMode = false;
         document.getElementById('addMarkerBtn').onclick = function () {
             addMarkerMode = true;
-            this.textContent = 'Click on Map to Add Marker';
+            this.textContent = 'Klikněte na mapu';
         };
 
         map.on('click', function (e) {
@@ -58,14 +58,14 @@
             const title = document.getElementById('articleTitle').value.trim();
             const url = document.getElementById('articleUrl').value.trim();
             if (!title || !url) {
-                alert('Please enter both a title and a valid URL.');
+                alert('Prosím, zadejte název a validní URL.');
                 return;
             }
             const marker = L.marker(e.latlng).addTo(map);
             marker.bindPopup(`<a href="${url}" target="_blank">${title}</a>`);
 
             addMarkerMode = false;
-            document.getElementById('addMarkerBtn').textContent = 'Add Marker (Click on Map)';
+            document.getElementById('addMarkerBtn').textContent = 'Přidat článek (Klikněte na mapu)';
             document.getElementById('articleTitle').value = '';
             document.getElementById('articleUrl').value = '';
         });
