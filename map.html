@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map with Article Links</title>
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Maplibre GL -->
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Maplibre GL Leaflet  -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+    <style>
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+
+        .form-container {
+            margin: 10px 0;
+        }
+
+        .form-container input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Interactive Map: Add Points with Article Links</h2>
+    <div class="form-container">
+        <input type="text" id="articleTitle" placeholder="Article Title">
+        <input type="url" id="articleUrl" placeholder="Article URL">
+        <button id="addMarkerBtn">Add Marker (Click on Map)</button>
+    </div>
+    <div id="map"></div>
+    <script>
+        // Initialize Leaflet map
+        const map = L.map('map').setView([49.820, 15.478], 7);
+
+        // Add MapLibre GL vector tiles from OpenFreeMap
+        L.maplibreGL({
+            style: 'https://tiles.openfreemap.org/styles/liberty',
+        }).addTo(map);
+
+        // Marker adding logic
+        let addMarkerMode = false;
+        document.getElementById('addMarkerBtn').onclick = function () {
+            addMarkerMode = true;
+            this.textContent = 'Click on Map to Add Marker';
+        };
+
+        map.on('click', function (e) {
+            if (!addMarkerMode) return;
+            const title = document.getElementById('articleTitle').value.trim();
+            const url = document.getElementById('articleUrl').value.trim();
+            if (!title || !url) {
+                alert('Please enter both a title and a valid URL.');
+                return;
+            }
+            const marker = L.marker(e.latlng).addTo(map);
+            marker.bindPopup(`<a href="${url}" target="_blank">${title}</a>`);
+
+            addMarkerMode = false;
+            document.getElementById('addMarkerBtn').textContent = 'Add Marker (Click on Map)';
+            document.getElementById('articleTitle').value = '';
+            document.getElementById('articleUrl').value = '';
+        });
+    </script>
+</body>
+
+</html>
